@@ -5,4 +5,4 @@
 #include "CoreMinimal.h"
 
 
-#define CUSTOM_RENDER_DEPTH_RED 250.f
+#define CUSTOM_RENDER_DEPTH_RED 250
