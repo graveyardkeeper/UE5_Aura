@@ -6,10 +6,18 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "EnhancedInputSubsystems.h"
+#include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
+}
+
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+
+	CursorTrace();
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -56,4 +64,34 @@ void AAuraPlayerController::Move(const FInputActionValue& InputValue)
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
+}
+
+void AAuraPlayerController::CursorTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit)
+	{
+		return;
+	}
+
+	IEnemyInterface* ThisTracedActor = nullptr;
+	if (CursorHit.GetActor()->Implements<UEnemyInterface>())
+	{
+		ThisTracedActor = Cast<IEnemyInterface>(CursorHit.GetActor());
+	}
+	if (LastTracedActor == nullptr && ThisTracedActor != nullptr)
+	{
+		ThisTracedActor->HighlightActor();
+	}
+	else if (LastTracedActor != nullptr && ThisTracedActor == nullptr)
+	{
+		LastTracedActor->UnHighlightActor();
+	}
+	else if (LastTracedActor != nullptr && ThisTracedActor != nullptr && LastTracedActor != ThisTracedActor)
+	{
+		ThisTracedActor->HighlightActor();
+		LastTracedActor->UnHighlightActor();
+	}
+	LastTracedActor = ThisTracedActor;
 }
