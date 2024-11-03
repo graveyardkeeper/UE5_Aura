@@ -17,3 +17,10 @@ void UAuraWidgetController::BroadcastInitialValues()
 	 * nothing here, this method should be a pure virtual function, but UCLASS don't allow us to do that.
 	 */
 }
+
+void UAuraWidgetController::BindCallbacksToDependencies()
+{
+	/*
+	 * nothing here, this method should be a pure virtual function, but UCLASS don't allow us to do that.
+	 */
+}
