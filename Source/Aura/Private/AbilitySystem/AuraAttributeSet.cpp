@@ -12,7 +12,7 @@
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
-	InitHealth(50.f);
+	InitHealth(10.f);
 	InitMaxHealth(100.f);
 	InitMana(20.f);
 	InitMaxMana(50.f);
@@ -57,6 +57,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	FEffectProperties EffectProperties;
 	SetEffectProperties(Data, EffectProperties);
+
+	UE_LOG(LogTemp, Warning, TEXT("Magnitude: %f"), Data.EvaluatedData.Magnitude);
+	UE_LOG(LogTemp, Warning, TEXT("NewHealth Current: %f"), Health.GetCurrentValue());
+	UE_LOG(LogTemp, Warning, TEXT("NewHealth Base: %f"), Health.GetBaseValue());
 }
 
 void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data,

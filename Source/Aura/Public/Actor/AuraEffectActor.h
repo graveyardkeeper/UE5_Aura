@@ -45,6 +45,9 @@ protected:
 	void OnEffectEndOverlap(AActor* TargetActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
+	float EffectLevel = 1.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
 	bool bDestroyOnEffectRemoval = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
