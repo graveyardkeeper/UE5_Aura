@@ -15,4 +15,5 @@ Build
 *.suo
 *.xcodeproj
 *.xcworkspace
+Aura.uproject.DotSettings.user
 
