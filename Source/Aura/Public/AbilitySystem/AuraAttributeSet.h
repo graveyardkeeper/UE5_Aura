@@ -108,7 +108,7 @@ public:
 	 **/
 	/**
 	 * 护甲: 减少伤害，提高格挡率
-	 * 受Resilience影响
+	 * = 6 + 0.25(Resilience + 2)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Armor, Category="SecondaryAttributes")
 	FGameplayAttributeData Armor;
@@ -116,7 +116,7 @@ public:
 
 	/**
 	 * 护甲穿透: 忽视敌方护甲，提高暴击率
-	 * 受Resilience影响
+	 * = 3 + 0.15(Resilience + 1)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ArmorPenetration, Category="SecondaryAttributes")
 	FGameplayAttributeData ArmorPenetration;
@@ -124,7 +124,7 @@ public:
 
 	/**
 	 * 格挡率: 有几率减少即将到来的一半伤害
-	 * 受Armor影响
+	 * = 4 + 0.25(Armor)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_BlockChance, Category="SecondaryAttributes")
 	FGameplayAttributeData BlockChance;
@@ -132,7 +132,7 @@ public:
 
 	/**
 	 * 暴击率: 有机率造成额外伤害
-	 * 受ArmorPenetration影响
+	 * = 2 + 0.75(ArmorPenetration)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CriticalHitChance, Category="SecondaryAttributes")
 	FGameplayAttributeData CriticalHitChance;
@@ -140,7 +140,7 @@ public:
 
 	/**
 	 * 暴击伤害: 增加暴击时造成的额外伤害
-	 * 受ArmorPenetration影响
+	 * = 5 + 1.5(ArmorPenetration)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CriticalHitDamage, Category="SecondaryAttributes")
 	FGameplayAttributeData CriticalHitDamage;
@@ -148,7 +148,7 @@ public:
 
 	/**
 	 * 暴击抵抗: 减少敌方对自身造成伤害时的暴击机率
-	 * 受Armor影响
+	 * = 10 + 0.75(Armor)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CriticalHitResistance, Category="SecondaryAttributes")
 	FGameplayAttributeData CriticalHitResistance;
@@ -156,7 +156,7 @@ public:
 
 	/**
 	 * 生命回复: 每秒回复的生命值
-	 * 受Vigor影响
+	 * = 1 + 0.1(Vigor)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_HealthRegeneration, Category="SecondaryAttributes")
 	FGameplayAttributeData HealthRegeneration;
@@ -164,7 +164,7 @@ public:
 
 	/**
 	 * 魔法回复: 每秒回复的魔法值
-	 * 受Intelligence影响
+	 * = 1 + 0.1(Intelligence)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ManaRegeneration, Category="SecondaryAttributes")
 	FGameplayAttributeData ManaRegeneration;
@@ -172,7 +172,7 @@ public:
 
 	/**
 	 * 最大生命: 生命的最大值
-	 * 受Vigor影响
+	 * = 80 + 2.5(Vigor)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxHealth, Category="SecondaryAttributes")
 	FGameplayAttributeData MaxHealth;
@@ -180,7 +180,7 @@ public:
 
 	/**
 	 * 最大魔法: 魔法的最大值
-	 * 受Intelligence影响
+	 * = 50 + 2(Intelligence)
 	 */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxMana, Category="SecondaryAttributes")
 	FGameplayAttributeData MaxMana;
