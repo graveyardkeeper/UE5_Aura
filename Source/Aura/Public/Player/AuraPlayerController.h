@@ -35,7 +35,7 @@ private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MoveAction;
 
-	TObjectPtr<IEnemyInterface> LastTracedActor = nullptr;
+	IEnemyInterface* LastTracedActor = nullptr;
 
 	void Move(const FInputActionValue& InputValue);
 
