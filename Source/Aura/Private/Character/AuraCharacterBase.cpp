@@ -40,6 +40,7 @@ void AAuraCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> EffectCl
 
 void AAuraCharacterBase::InitializeDefaultAttributes() const
 {
+	// so, the order of initialization is significant
 	if (DefaultPrimaryAttributes != nullptr)
 	{
 		ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
@@ -57,6 +58,17 @@ void AAuraCharacterBase::InitializeDefaultAttributes() const
 	else
 	{
 		UE_LOG(LogAbilitySystemComponent, Error, TEXT("DefaultSecondaryAttributes not set on character '%s', fill it!"),
+		       *GetName()
+		)
+	}
+
+	if (DefaultVitalAttributes != nullptr)
+	{
+		ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
+	}
+	else
+	{
+		UE_LOG(LogAbilitySystemComponent, Error, TEXT("DefaultVitalAttributes not set on character '%s', fill it!"),
 		       *GetName()
 		)
 	}

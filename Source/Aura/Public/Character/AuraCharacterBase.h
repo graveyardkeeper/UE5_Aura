@@ -43,6 +43,9 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes; // effect to initial vital attributes.
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes; // effect to initial primary attributes.
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
