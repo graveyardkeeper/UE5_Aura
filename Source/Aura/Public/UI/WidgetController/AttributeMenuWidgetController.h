@@ -1,0 +1,26 @@
+// There is no fucking Copyright
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UI/WidgetController/AuraWidgetController.h"
+#include "AttributeMenuWidgetController.generated.h"
+
+class UAttributeInfo;
+/**
+ * 
+ */
+UCLASS()
+class AURA_API UAttributeMenuWidgetController : public UAuraWidgetController
+{
+	GENERATED_BODY()
+
+public:
+	virtual void BindCallbacksToDependencies() override;
+
+	virtual void BroadcastInitialValues() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAttributeInfo> AttributeInfo;
+};

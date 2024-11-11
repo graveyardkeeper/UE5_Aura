@@ -23,9 +23,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& Params);
 
+	UFUNCTION(BlueprintCallable)
+	UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& Params);
+
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
-	/*
+	/**
 	 * Overlay Widget 
 	 */
 	UPROPERTY(BlueprintReadOnly)
@@ -38,4 +41,14 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	/* End of Overlay Widget*/
+
+	/**
+	 * Attribute Menu Widget
+	 */
+	UPROPERTY()
+	TObjectPtr<UAttributeMenuWidgetController> AttributeMenuWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
+	/* End of Attribute Menu Widget*/
 };
