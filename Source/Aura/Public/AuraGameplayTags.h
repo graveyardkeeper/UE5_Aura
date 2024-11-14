@@ -34,6 +34,17 @@ public:
 	FGameplayTag Attribute_Secondary_MaxHealth;
 	FGameplayTag Attribute_Secondary_MaxMana;
 
+
+	/**
+	 * Input tags
+	 */
+	FGameplayTag InputTag_LMB;
+	FGameplayTag InputTag_RMB;
+	FGameplayTag InputTag_Key1;
+	FGameplayTag InputTag_Key2;
+	FGameplayTag InputTag_Key3;
+	FGameplayTag InputTag_Key4;
+
 private:
 	static FAuraGameplayTags Singleton;
 };
