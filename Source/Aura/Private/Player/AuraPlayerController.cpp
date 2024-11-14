@@ -3,9 +3,9 @@
 
 #include "Player/AuraPlayerController.h"
 
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "EnhancedInputSubsystems.h"
+#include "Input/AuraInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
@@ -45,9 +45,13 @@ void AAuraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(InputComponent);
+	UAuraInputComponent* AuraInput = CastChecked<UAuraInputComponent>(InputComponent);
 
-	EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInput->BindAbilityActions(InputConfig, this,
+	                              &AAuraPlayerController::AbilityInputTagPressed,
+	                              &AAuraPlayerController::AbilityInputTagReleased,
+	                              &AAuraPlayerController::AbilityInputTagHeld);
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputValue)
@@ -94,4 +98,22 @@ void AAuraPlayerController::CursorTrace()
 		LastTracedActor->UnHighlightActor();
 	}
 	LastTracedActor = ThisTracedActor;
+}
+
+void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red,
+	                                 *FString::Printf(TEXT("Input Tag '%s' Pressed."), *InputTag.ToString()));
+}
+
+void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green,
+	                                 *FString::Printf(TEXT("Input Tag '%s' Released."), *InputTag.ToString()));
+}
+
+void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Blue,
+	                                 *FString::Printf(TEXT("Input Tag '%s' Held."), *InputTag.ToString()));
 }
