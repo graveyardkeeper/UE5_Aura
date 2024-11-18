@@ -4,15 +4,19 @@
 #include "Player/AuraPlayerController.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AuraGameplayTags.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "Components/SplineComponent.h"
 #include "Input/AuraInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
 	bReplicates = true;
+
+	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
 void AAuraPlayerController::PlayerTick(float DeltaTime)
@@ -91,34 +95,33 @@ void AAuraPlayerController::CursorTrace()
 		return;
 	}
 
-	IEnemyInterface* ThisTracedActor = nullptr;
+	CurrTracedActor = nullptr;
 	if (CursorHit.GetActor()->Implements<UEnemyInterface>())
 	{
-		ThisTracedActor = Cast<IEnemyInterface>(CursorHit.GetActor());
+		CurrTracedActor = Cast<IEnemyInterface>(CursorHit.GetActor());
 	}
-	if (LastTracedActor == nullptr && ThisTracedActor != nullptr)
+
+	if (CurrTracedActor != LastTracedActor)
 	{
-		ThisTracedActor->HighlightActor();
+		if (CurrTracedActor)
+		{
+			CurrTracedActor->HighlightActor();
+		}
+		if (LastTracedActor)
+		{
+			LastTracedActor->UnHighlightActor();
+		}
 	}
-	else if (LastTracedActor != nullptr && ThisTracedActor == nullptr)
-	{
-		LastTracedActor->UnHighlightActor();
-	}
-	else if (LastTracedActor != nullptr && ThisTracedActor != nullptr && LastTracedActor != ThisTracedActor)
-	{
-		ThisTracedActor->HighlightActor();
-		LastTracedActor->UnHighlightActor();
-	}
-	LastTracedActor = ThisTracedActor;
+	LastTracedActor = CurrTracedActor;
 }
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	// do nothing for now.
-	/*
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red,
-	                                 *FString::Printf(TEXT("Input Tag '%s' Pressed."), *InputTag.ToString()));
-	                                 */
+	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
+	{
+		bTargeting = CurrTracedActor != nullptr;
+		bAutoRunning = false;
+	}
 }
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
@@ -132,9 +135,27 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (GetASC() == nullptr)
+	// if input is not LMB or targeting an enemy, then try to activate abilities, otherwise we should Click-to-Move.
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
 	{
+		if (GetASC())
+		{
+			GetASC()->AbilityInputTagHeld(InputTag);
+		}
 		return;
 	}
-	GetASC()->AbilityInputTagHeld(InputTag);
+
+	// handle movement logic here...
+	FollowTime += GetWorld()->GetDeltaSeconds();
+
+	FHitResult Hit;
+	if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+	{
+		CachedDestination = Hit.ImpactPoint;
+	}
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+		ControlledPawn->AddMovementInput(WorldDirection);
+	}
 }
