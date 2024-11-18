@@ -3,8 +3,10 @@
 
 #include "Player/AuraPlayerController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Input/AuraInputComponent.h"
 #include "Interaction/EnemyInterface.h"
 
@@ -39,6 +41,16 @@ void AAuraPlayerController::BeginPlay()
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputMode.SetHideCursorDuringCapture(false);
 	SetInputMode(InputMode);
+}
+
+UAuraAbilitySystemComponent* AAuraPlayerController::GetASC()
+{
+	if (AuraAbilitySystemComponent == nullptr)
+	{
+		AuraAbilitySystemComponent = Cast<UAuraAbilitySystemComponent>(
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn()));
+	}
+	return AuraAbilitySystemComponent;
 }
 
 void AAuraPlayerController::SetupInputComponent()
@@ -102,18 +114,27 @@ void AAuraPlayerController::CursorTrace()
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	// do nothing for now.
+	/*
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red,
 	                                 *FString::Printf(TEXT("Input Tag '%s' Pressed."), *InputTag.ToString()));
+	                                 */
 }
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green,
-	                                 *FString::Printf(TEXT("Input Tag '%s' Released."), *InputTag.ToString()));
+	if (GetASC() == nullptr)
+	{
+		return;
+	}
+	GetASC()->AbilityInputTagReleased(InputTag);
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Blue,
-	                                 *FString::Printf(TEXT("Input Tag '%s' Held."), *InputTag.ToString()));
+	if (GetASC() == nullptr)
+	{
+		return;
+	}
+	GetASC()->AbilityInputTagHeld(InputTag);
 }
