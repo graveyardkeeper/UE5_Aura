@@ -27,6 +27,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+	AutoRun();
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -158,6 +159,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				DrawDebugSphere(GetWorld(), Point, 10.f, 10, FColor::Blue, false, 1.f);
 #endif
 			}
+			if (!NaviPath->PathPoints.IsEmpty())
+			{
+				// set destination to the last point in NaviPath, in order to void an unreachable auto running.
+				CachedDestination = NaviPath->PathPoints.Last();
+			}
 			bAutoRunning = true;
 		}
 	}
@@ -189,5 +195,29 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	{
 		const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 		ControlledPawn->AddMovementInput(WorldDirection);
+	}
+}
+
+void AAuraPlayerController::AutoRun()
+{
+	if (!bAutoRunning)
+	{
+		return;
+	}
+	APawn* ControlledPawn = GetPawn();
+	if (!ControlledPawn)
+	{
+		return;
+	}
+	const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(
+		ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+	const FVector Direction = Spline->FindDirectionClosestToWorldLocation(
+		LocationOnSpline, ESplineCoordinateSpace::World);
+	ControlledPawn->AddMovementInput(Direction);
+
+	const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+	if (DistanceToDestination <= AutoRunAcceptanceRadius)
+	{
+		bAutoRunning = false;
 	}
 }

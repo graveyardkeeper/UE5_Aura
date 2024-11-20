@@ -73,4 +73,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
 	/** End of Click-to-Move */
+
+	void AutoRun();
 };
