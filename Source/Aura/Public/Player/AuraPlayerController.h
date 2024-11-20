@@ -41,6 +41,7 @@ private:
 
 	IEnemyInterface* LastTracedActor = nullptr;
 	IEnemyInterface* CurrTracedActor = nullptr;
+	FHitResult CursorHit;
 
 	void Move(const FInputActionValue& InputValue);
 

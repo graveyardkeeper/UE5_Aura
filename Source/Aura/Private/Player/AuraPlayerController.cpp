@@ -92,18 +92,13 @@ void AAuraPlayerController::Move(const FInputActionValue& InputValue)
 
 void AAuraPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit)
 	{
 		return;
 	}
-
-	CurrTracedActor = nullptr;
-	if (CursorHit.GetActor()->Implements<UEnemyInterface>())
-	{
-		CurrTracedActor = Cast<IEnemyInterface>(CursorHit.GetActor());
-	}
+	LastTracedActor = CurrTracedActor;
+	CurrTracedActor = Cast<IEnemyInterface>(CursorHit.GetActor());
 
 	if (CurrTracedActor != LastTracedActor)
 	{
@@ -116,7 +111,6 @@ void AAuraPlayerController::CursorTrace()
 			LastTracedActor->UnHighlightActor();
 		}
 	}
-	LastTracedActor = CurrTracedActor;
 }
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
@@ -141,8 +135,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 
 	// handle Auto-Running logic here...
-	APawn* ControlledPawn = GetPawn();
-	if (FollowTime <= ShortPressThreshold && ControlledPawn)
+	if (APawn* ControlledPawn = GetPawn(); FollowTime <= ShortPressThreshold && ControlledPawn)
 	{
 		Spline->ClearSplinePoints();
 
@@ -186,10 +179,9 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	// handle movement logic here...
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
-	FHitResult Hit;
-	if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+	if (CursorHit.bBlockingHit)
 	{
-		CachedDestination = Hit.ImpactPoint;
+		CachedDestination = CursorHit.ImpactPoint;
 	}
 	if (APawn* ControlledPawn = GetPawn())
 	{
