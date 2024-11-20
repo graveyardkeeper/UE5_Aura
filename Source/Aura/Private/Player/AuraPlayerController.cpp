@@ -3,10 +3,13 @@
 
 #include "Player/AuraPlayerController.h"
 
+#include "Aura/Aura.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "EnhancedInputSubsystemInterface.h"
 #include "EnhancedInputSubsystems.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/SplineComponent.h"
 #include "Input/AuraInputComponent.h"
@@ -126,11 +129,40 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetASC() == nullptr)
+	// if input is not LMB or targeting an enemy, then try to notify ASC, otherwise we should start an Auto-Running.
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
 	{
+		if (GetASC())
+		{
+			GetASC()->AbilityInputTagReleased(InputTag);
+		}
 		return;
 	}
-	GetASC()->AbilityInputTagReleased(InputTag);
+
+	// handle Auto-Running logic here...
+	APawn* ControlledPawn = GetPawn();
+	if (FollowTime <= ShortPressThreshold && ControlledPawn)
+	{
+		Spline->ClearSplinePoints();
+
+		UNavigationPath* NaviPath = UNavigationSystemV1::FindPathToLocationSynchronously(
+			this,
+			ControlledPawn->GetActorLocation(),
+			CachedDestination);
+		if (NaviPath)
+		{
+			for (const FVector& Point : NaviPath->PathPoints)
+			{
+				Spline->AddSplinePoint(Point, ESplineCoordinateSpace::World);
+#ifdef AURA_DEBUG
+				DrawDebugSphere(GetWorld(), Point, 10.f, 10, FColor::Blue, false, 1.f);
+#endif
+			}
+			bAutoRunning = true;
+		}
+	}
+
+	FollowTime = 0.f;
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
