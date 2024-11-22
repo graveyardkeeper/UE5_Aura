@@ -37,5 +37,4 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActo
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                       const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Projectile Overlapped");
 }

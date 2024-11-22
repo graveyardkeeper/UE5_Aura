@@ -7,14 +7,9 @@
 #include "Interaction/CombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                           const FGameplayAbilityActorInfo* ActorInfo,
-                                           const FGameplayAbilityActivationInfo ActivationInfo,
-                                           const FGameplayEventData* TriggerEventData)
+void UAuraProjectileSpell::SpawnProjectile()
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!HasAuthority(&ActivationInfo))
+	if (!GetAvatarActorFromActorInfo()->HasAuthority())
 	{
 		return;
 	}
@@ -36,4 +31,12 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 		Projectile->FinishSpawning(SpawnTransform);
 	}
+}
+
+void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+                                           const FGameplayAbilityActorInfo* ActorInfo,
+                                           const FGameplayAbilityActivationInfo ActivationInfo,
+                                           const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
