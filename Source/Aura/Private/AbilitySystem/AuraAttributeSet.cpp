@@ -77,6 +77,14 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	FEffectProperties EffectProperties;
 	SetEffectProperties(Data, EffectProperties);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange,
+		                                 FString::Printf(
+			                                 TEXT("Change health on %s, Health: %f"),
+			                                 *Data.Target.GetAvatarActor()->GetName(), GetHealth()));
+	}
 }
 
 void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data,
