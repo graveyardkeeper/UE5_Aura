@@ -68,6 +68,8 @@ void AAuraPlayerController::SetupInputComponent()
 	UAuraInputComponent* AuraInput = CastChecked<UAuraInputComponent>(InputComponent);
 
 	AuraInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInput->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraInput->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraInput->BindAbilityActions(InputConfig, this,
 	                              &AAuraPlayerController::AbilityInputTagPressed,
 	                              &AAuraPlayerController::AbilityInputTagReleased,
@@ -125,7 +127,7 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	// if input is not LMB or targeting an enemy, then try to notify ASC, otherwise we should start an Auto-Running.
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting || bShiftKeyDown)
 	{
 		if (GetASC())
 		{
@@ -167,7 +169,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	// if input is not LMB or targeting an enemy, then try to activate abilities, otherwise we should Click-to-Move.
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting)
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting || bShiftKeyDown)
 	{
 		if (GetASC())
 		{

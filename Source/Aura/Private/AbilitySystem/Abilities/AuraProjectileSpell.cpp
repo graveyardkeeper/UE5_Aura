@@ -7,7 +7,7 @@
 #include "Interaction/CombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UAuraProjectileSpell::SpawnProjectile()
+void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 {
 	if (!GetAvatarActorFromActorInfo()->HasAuthority())
 	{
@@ -16,9 +16,12 @@ void UAuraProjectileSpell::SpawnProjectile()
 	// spawn a projectile.
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
+		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+
 		FTransform SpawnTransform;
-		SpawnTransform.SetLocation(CombatInterface->GetCombatSocketLocation());
-		// todo: set spawn transform location.
+		SpawnTransform.SetLocation(SocketLocation);
+		FRotator Direction = (TargetLocation - SocketLocation).Rotation();
+		SpawnTransform.SetRotation(Direction.Quaternion());
 
 		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
 			ProjectileClass,
