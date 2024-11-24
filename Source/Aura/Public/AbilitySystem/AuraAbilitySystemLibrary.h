@@ -29,4 +29,7 @@ public:
 	                                           UAbilitySystemComponent* ASC,
 	                                           ECharacterClass CharacterClass,
 	                                           float Level = 1.f);
+
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|CharacterClassDefaults")
+	static void GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC);
 };

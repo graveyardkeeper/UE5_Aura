@@ -8,6 +8,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -91,6 +92,14 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 			// 是否致命伤害
 			const bool bFatal = NewHealth <= 0.f;
+			if (!bFatal)
+			{
+				// 非致命伤，尝试激活拥有受击Tag的能力
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
+
+				EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
 		}
 	}
 }

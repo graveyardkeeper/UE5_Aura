@@ -27,6 +27,8 @@ public:
 
 	virtual int32 GetCharacterLevel() override { return Level; }
 
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -67,4 +69,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+	UPROPERTY(EditDefaultsOnly, Category="Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 };
