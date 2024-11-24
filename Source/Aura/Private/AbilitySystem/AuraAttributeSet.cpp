@@ -78,12 +78,20 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	FEffectProperties EffectProperties;
 	SetEffectProperties(Data, EffectProperties);
 
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange,
-		                                 FString::Printf(
-			                                 TEXT("Change health on %s, Health: %f"),
-			                                 *Data.Target.GetAvatarActor()->GetName(), GetHealth()));
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+
+		if (LocalIncomingDamage > 0.f)
+		{
+			// 造成了伤害
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			// 是否致命伤害
+			const bool bFatal = NewHealth <= 0.f;
+		}
 	}
 }
 

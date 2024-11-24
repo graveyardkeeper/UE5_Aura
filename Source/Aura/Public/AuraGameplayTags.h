@@ -45,6 +45,12 @@ public:
 	FGameplayTag InputTag_Key3;
 	FGameplayTag InputTag_Key4;
 
+
+	/**
+	 * Damage Tags
+	 */
+	FGameplayTag Damage;
+
 private:
 	static FAuraGameplayTags Singleton;
 };
