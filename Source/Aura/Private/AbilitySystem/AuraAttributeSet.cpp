@@ -10,6 +10,7 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/Character.h"
+#include "Interaction/CombatInterface.h"
 #include "Net/UnrealNetwork.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
@@ -99,6 +100,14 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
 
 				EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+			else
+			{
+				// 致命伤，call Die()
+				if (ICombatInterface* Combat = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor))
+				{
+					Combat->Die();
+				}
 			}
 		}
 	}
