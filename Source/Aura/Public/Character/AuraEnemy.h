@@ -31,6 +31,7 @@ public:
 	 * Combat interface.
 	 */
 	virtual int32 GetCharacterLevel() override;
+	virtual void Die() override;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnHealthChanged;
@@ -42,6 +43,9 @@ public:
 	float BaseWalkSpeed = 250.f;
 
 	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	float LifeSpan = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Combat")
 	bool bHitReacting = false;
 
 	void OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
