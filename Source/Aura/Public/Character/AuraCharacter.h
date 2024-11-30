@@ -22,7 +22,10 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	/** Combat Interface. */
-	virtual int32 GetCharacterLevel() override;
+	/**
+	 * GetCharacterLevel不在父类实现，而是分别在AuraCharacter和Enemy中实现，因为玩家的Level不维护在Character中（Avatar），而是在PlayerState中
+	 */
+	virtual int32 GetCharacterLevel() const override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;
