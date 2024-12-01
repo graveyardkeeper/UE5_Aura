@@ -36,17 +36,25 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 		// give projectile a damage effect
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
 			GetAvatarActorFromActorInfo());
+
+		// 填充Context，AbilitySystem本身不需要，但消费侧需要
+		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+		EffectContextHandle.SetAbility(this);
+		EffectContextHandle.AddSourceObject(Projectile);
+		TArray<TWeakObjectPtr<AActor>> Actors;
+		Actors.Add(Projectile);
+		EffectContextHandle.AddActors(Actors);
+		FHitResult HitResult;
+		HitResult.Location = TargetLocation;
+		EffectContextHandle.AddHitResult(HitResult);
+
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),
-			SourceASC->MakeEffectContext());
+			EffectContextHandle);
 
 		// 向SetByCaller的修饰符添加一个tag和幅度
 		const float ScaledDamage = Damage.AsInteger(GetAbilityLevel());
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FAuraGameplayTags::Get().Damage,
 		                                                              ScaledDamage);
-#ifdef AURA_DEBUG
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
-		                                 FString::Printf(TEXT("FireBolt Damage: %f"), ScaledDamage));
-#endif
 
 		Projectile->DamageEffectSpecHandle = SpecHandle;
 
