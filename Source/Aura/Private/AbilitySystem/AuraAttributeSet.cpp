@@ -8,6 +8,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
@@ -113,12 +114,16 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			}
 
 			// 显示伤害数字
-			ShowFloatingText(EffectProperties, LocalIncomingDamage);
+			ShowFloatingText(EffectProperties, LocalIncomingDamage,
+			                 UAuraAbilitySystemLibrary::IsBlockedHit(EffectProperties.EffectContextHandle),
+			                 UAuraAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle)
+			);
 		}
 	}
 }
 
-void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage)
+void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlockedHit,
+                                         bool bIsCriticalHit) const
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
@@ -126,7 +131,7 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(
 			UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
 		{
-			PC->ShowDamageNumber(Damage, Props.TargetCharacter);
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bIsBlockedHit, bIsCriticalHit);
 		}
 	}
 }
