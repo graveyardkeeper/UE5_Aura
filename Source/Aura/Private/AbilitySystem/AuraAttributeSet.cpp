@@ -20,6 +20,7 @@ UAuraAttributeSet::UAuraAttributeSet()
 {
 	FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
 
+	/** Tag到获取Attribute方法的映射，目前主要用在UI监听属性变化事件 */
 	TagToAttribute.Add(GameplayTags.Attribute_Primary_Strength, GetStrengthAttribute);
 	TagToAttribute.Add(GameplayTags.Attribute_Primary_Intelligence, GetIntelligenceAttribute);
 	TagToAttribute.Add(GameplayTags.Attribute_Primary_Resilience, GetResilienceAttribute);
@@ -35,6 +36,11 @@ UAuraAttributeSet::UAuraAttributeSet()
 	TagToAttribute.Add(GameplayTags.Attribute_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
 	TagToAttribute.Add(GameplayTags.Attribute_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagToAttribute.Add(GameplayTags.Attribute_Secondary_MaxMana, GetMaxManaAttribute);
+
+	TagToAttribute.Add(GameplayTags.Attribute_Resistance_Fire, GetFireResistanceAttribute);
+	TagToAttribute.Add(GameplayTags.Attribute_Resistance_Lightning, GetLightningResistanceAttribute);
+	TagToAttribute.Add(GameplayTags.Attribute_Resistance_Arcane, GetArcaneResistanceAttribute);
+	TagToAttribute.Add(GameplayTags.Attribute_Resistance_Physical, GetPhysicalResistanceAttribute);
 }
 
 void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -59,6 +65,11 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, FireResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, LightningResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, ArcaneResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
 }
 
 void UAuraAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
@@ -249,4 +260,24 @@ void UAuraAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue) 
 void UAuraAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldValue) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, MaxMana, OldValue);
+}
+
+void UAuraAttributeSet::OnRep_FireResistance(const FGameplayAttributeData& OldValue) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, FireResistance, OldValue);
+}
+
+void UAuraAttributeSet::OnRep_LightningResistance(const FGameplayAttributeData& OldValue) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, LightningResistance, OldValue);
+}
+
+void UAuraAttributeSet::OnRep_ArcaneResistance(const FGameplayAttributeData& OldValue) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, ArcaneResistance, OldValue);
+}
+
+void UAuraAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData& OldValue) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, PhysicalResistance, OldValue);
 }
