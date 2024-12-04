@@ -62,9 +62,14 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluateParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluateParams.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
-	// 每个伤害型Ability都会有一个Effect，且Effect中会设置一个SetByCaller的修饰符，其拥有Damage标签
-	// 通过标签，获取此次受到的伤害值
-	float Damage = Spec.GetSetByCallerMagnitude(FAuraGameplayTags::Get().Damage);
+	// 每个伤害型Ability都会有一个Effect，且Effect中会设置一个或多个不同伤害类型的SetByCaller修饰符，其拥有不同伤害类型的Damage.*标签
+	// 通过标签，获取此次受到的不同类型伤害值，并累加，即为此次受到的初始总伤害
+	float Damage = 0.f;
+	for (FGameplayTag DamageTypeTag : FAuraGameplayTags::Get().DamageTypes)
+	{
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+		Damage += DamageTypeValue;
+	}
 
 	// 捕获目标格档率，计算此次伤害是否被成功格档
 	float TargetBlockChance = 0.f;
