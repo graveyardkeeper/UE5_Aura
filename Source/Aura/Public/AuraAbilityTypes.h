@@ -13,7 +13,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 
-	virtual UScriptStruct* GetScriptStruct() const override { return GetScriptStruct(); }
+	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
 
 	/** Creates a copy of this context, used to duplicate for later modifications */
 	virtual FGameplayEffectContext* Duplicate() const override

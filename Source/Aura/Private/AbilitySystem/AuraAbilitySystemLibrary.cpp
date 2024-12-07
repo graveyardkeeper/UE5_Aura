@@ -44,11 +44,8 @@ void UAuraAbilitySystemLibrary::InitCharacterDefaultAttributes(const UObject* Wo
                                                                ECharacterClass CharacterClass,
                                                                float Level)
 {
+	// this function should only call at server
 	const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
-	if (!CharacterClassInfo)
-	{
-		return;
-	}
 	const FCharacterClassDefaultInfo ClassDefaults = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
 	FGameplayEffectContextHandle PrimaryAttrCtx = ASC->MakeEffectContext();
@@ -78,11 +75,8 @@ void UAuraAbilitySystemLibrary::InitCharacterDefaultAttributes(const UObject* Wo
 
 void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC)
 {
+	// this function should only call at server
 	const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
-	if (!CharacterClassInfo)
-	{
-		return;
-	}
 	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);

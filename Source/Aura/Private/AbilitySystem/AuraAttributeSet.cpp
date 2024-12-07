@@ -138,9 +138,8 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		// 这里不直接使用Props.SourceController值因为其不一定是LocalPlayer的Controller
-		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(
-			UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0)))
+		// ShowDamageNumber是一个client method，必须使用对应端的controller才能正确展示在对应客户端
+		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceController))
 		{
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bIsBlockedHit, bIsCriticalHit);
 		}
