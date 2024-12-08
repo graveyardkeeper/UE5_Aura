@@ -48,7 +48,10 @@ protected:
 	float EffectLevel = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
-	bool bDestroyOnEffectRemoval = false;
+	bool bDestroyOnEffectApplication = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
+	bool bApplyEffectToEnemies = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AppliedEffects")
 	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;

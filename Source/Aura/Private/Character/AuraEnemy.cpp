@@ -17,6 +17,13 @@
 
 AAuraEnemy::AAuraEnemy()
 {
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");

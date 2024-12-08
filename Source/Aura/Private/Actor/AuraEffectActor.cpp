@@ -23,6 +23,11 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 {
 	checkf(EffectClass, TEXT("Effect class not set, fill it."));
 
+	if (TargetActor->ActorHasTag("Enemy") && !bApplyEffectToEnemies)
+	{
+		return;
+	}
+
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (TargetASC == nullptr)
 	{
@@ -42,10 +47,21 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 		// only infinite effect need to remove.
 		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
 	}
+
+	if (!bIsInfiniteEffect && bDestroyOnEffectApplication)
+	{
+		// 只有instant和duration效果才需要被销毁
+		Destroy();
+	}
 }
 
 void AAuraEffectActor::OnEffectOverlap(AActor* TargetActor)
 {
+	if (TargetActor->ActorHasTag("Enemy") && !bApplyEffectToEnemies)
+	{
+		return;
+	}
+
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
@@ -62,6 +78,11 @@ void AAuraEffectActor::OnEffectOverlap(AActor* TargetActor)
 
 void AAuraEffectActor::OnEffectEndOverlap(AActor* TargetActor)
 {
+	if (TargetActor->ActorHasTag("Enemy") && !bApplyEffectToEnemies)
+	{
+		return;
+	}
+
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
