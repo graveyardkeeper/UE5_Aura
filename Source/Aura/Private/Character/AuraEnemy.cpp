@@ -42,13 +42,20 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 
 	if (!HasAuthority())
 	{
-		// 不是必须的，PossessedBy只会在客户端执行
+		// 不是必须的，PossessedBy只会在服务器执行
 		return;
 	}
+
+	/** AI相关设置，只存在于服务器*/
 	AuraAIController = CastChecked<AAuraAIController>(NewController);
 	// 将AIController中的Blackboard与当前Enemy中的BT关联起来
 	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	AuraAIController->RunBehaviorTree(BehaviorTree);
+
+	// 初始化相关黑板键
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
+	                                                           CharacterClass != ECharacterClass::Warrior);
 }
 
 void AAuraEnemy::BeginPlay()
@@ -142,4 +149,7 @@ void AAuraEnemy::OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewC
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+
+	// 更新黑板键
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
