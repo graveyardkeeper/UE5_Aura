@@ -25,6 +25,9 @@ struct FCharacterClassDefaultInfo
 	// 只有primary attribute每个角色都不同，其余vital attribute和secondary attribute都是基于primary attribute的公式，在各个角色间共享
 	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
+
+	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 };
 
 /**

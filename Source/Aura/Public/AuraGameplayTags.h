@@ -71,6 +71,11 @@ public:
 	 */
 	FGameplayTag Effect_HitReact;
 
+	/**
+	 * Ability Tags
+	 */
+	FGameplayTag Ability_Attack;
+
 private:
 	static FAuraGameplayTags Singleton;
 };
