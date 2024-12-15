@@ -17,10 +17,9 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 		return;
 	}
 	// spawn a projectile.
-	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
+	if (AActor* OwnerActor = GetAvatarActorFromActorInfo(); OwnerActor->Implements<UCombatInterface>())
 	{
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(OwnerActor);
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
 		FRotator Direction = (TargetLocation - SocketLocation).Rotation();
