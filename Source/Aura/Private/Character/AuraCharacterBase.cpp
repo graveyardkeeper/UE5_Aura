@@ -41,6 +41,16 @@ void AAuraCharacterBase::Die()
 	MulticastHandleDeath();
 }
 
+bool AAuraCharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* AAuraCharacterBase::GetAvatar_Implementation()
+{
+	return this;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
 	// 角色死亡，开启模拟物理，布娃娃效果
@@ -57,6 +67,8 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 
 	// 溶解角色模型
 	Dissolve();
+
+	bDead = true;
 }
 
 void AAuraCharacterBase::BeginPlay()

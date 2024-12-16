@@ -25,8 +25,12 @@ public:
 
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	/** Combat Interface */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	virtual FVector GetCombatSocketLocation_Implementation() override;
 	virtual void Die() override;
+	virtual bool IsDead_Implementation() const override;
+	virtual AActor* GetAvatar_Implementation() override;
 
 	/** 多播，角色死亡时在所有客户端上的表现 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -46,8 +50,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName WeaponTipSocketName;
-
-	virtual FVector GetCombatSocketLocation_Implementation() override;
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -82,6 +84,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
+
+	bool bDead = false;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
