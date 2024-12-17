@@ -141,6 +141,13 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 		// ShowDamageNumber是一个client method，必须使用对应端的controller才能正确展示在对应客户端
 		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceController))
 		{
+			// SourceController为Player，如玩家对敌人造成伤害
+			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bIsBlockedHit, bIsCriticalHit);
+			return;
+		}
+		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.TargetController))
+		{
+			// TargetController为Player，如敌人对玩家造成伤害
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bIsBlockedHit, bIsCriticalHit);
 		}
 	}

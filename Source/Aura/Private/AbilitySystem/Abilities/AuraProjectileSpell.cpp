@@ -47,6 +47,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 		HitResult.Location = TargetLocation;
 		EffectContextHandle.AddHitResult(HitResult);
 
+		/** 这段代码是用来遇到问题恢复的，不确定挪到基类的代码是否正确
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),
 			EffectContextHandle);
 
@@ -59,6 +60,8 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 		}
 
 		Projectile->DamageEffectSpecHandle = SpecHandle;
+		*/
+		Projectile->DamageEffectSpecHandle = MakeDamageEffectSpecHandle(EffectContextHandle);
 
 		Projectile->FinishSpawning(SpawnTransform);
 	}
