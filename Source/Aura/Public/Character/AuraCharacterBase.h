@@ -27,10 +27,11 @@ public:
 
 	/** Combat Interface */
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	virtual FVector GetCombatSocketLocation_Implementation() override;
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual void Die() override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
+	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
 
 	/** 多播，角色死亡时在所有客户端上的表现 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -50,6 +51,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName WeaponTipSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName LeftHandSocketName;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName RightHandSocketName;
 
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -93,4 +100,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Combat")
+	TArray<FTaggedMontage> AttackMontages;
 };

@@ -48,13 +48,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;
 
-	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
 	float BaseWalkSpeed = 250.f;
 
 	UPROPERTY(BlueprintReadOnly, Category="Combat")
 	float LifeSpan = 3.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Combat")
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
 	bool bHitReacting = false;
 
 	UPROPERTY(BlueprintReadWrite, Category="Combat")

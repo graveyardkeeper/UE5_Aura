@@ -153,4 +153,20 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FName("Ability.Attack"),
 		FString("Attack Ability Tag")
 	);
+
+
+	/** Montage Tags */
+	/** 仅C++会引用的Tag定义在这里，编辑器中同样也存在一些数据表格中有其他MontageTag */
+	Montage_Attack_Weapon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Montage.Attack.Weapon"),
+		FString("Weapon Attack Montage")
+	);
+	Montage_Attack_LeftHand = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Montage.Attack.LeftHand"),
+		FString("Left Hand Attack Montage")
+	);
+	Montage_Attack_RightHand = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Montage.Attack.RightHand"),
+		FString("Right Hand Attack Montage")
+	);
 }
