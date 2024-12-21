@@ -53,6 +53,7 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	AuraAIController->RunBehaviorTree(BehaviorTree);
 
 	// 初始化相关黑板键
+	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), false);
 	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
 	AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
 	                                                           CharacterClass != ECharacterClass::Warrior);
@@ -152,7 +153,12 @@ int32 AAuraEnemy::GetCharacterLevel() const
 void AAuraEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
-	Super::Die();
+	if (AuraAIController)
+	{
+		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
+	}
+
+	Super::Die(); // parent的方法最后调用，因为会multicast到客户端，需要确保其他事情都处理完成
 }
 
 void AAuraEnemy::OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
