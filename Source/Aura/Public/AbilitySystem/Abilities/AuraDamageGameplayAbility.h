@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "Interaction/CombatInterface.h"
 #include "AuraDamageGameplayAbility.generated.h"
 
 /**
@@ -22,6 +23,9 @@ protected:
 	/** Helper */
 	FGameplayEffectSpecHandle MakeDamageEffectSpecHandle();
 	FGameplayEffectSpecHandle MakeDamageEffectSpecHandle(const FGameplayEffectContextHandle& ContextHandle);
+
+	UFUNCTION(BlueprintPure)
+	FTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;

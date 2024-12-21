@@ -39,3 +39,13 @@ FGameplayEffectSpecHandle UAuraDamageGameplayAbility::MakeDamageEffectSpecHandle
 	}
 	return SpecHandle;
 }
+
+FTaggedMontage UAuraDamageGameplayAbility::GetRandomTaggedMontageFromArray(
+	const TArray<FTaggedMontage>& TaggedMontages) const
+{
+	if (TaggedMontages.IsEmpty())
+	{
+		return FTaggedMontage();
+	}
+	return TaggedMontages[FMath::RandRange(0, TaggedMontages.Num() - 1)];
+}
