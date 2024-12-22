@@ -57,6 +57,18 @@ TArray<FTaggedMontage> AAuraCharacterBase::GetAttackMontages_Implementation()
 	return AttackMontages;
 }
 
+FTaggedMontage AAuraCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for (const FTaggedMontage& TaggedMontage : AttackMontages)
+	{
+		if (TaggedMontage.MontageTag.MatchesTagExact(MontageTag))
+		{
+			return TaggedMontage;
+		}
+	}
+	return FTaggedMontage();
+}
+
 UNiagaraSystem* AAuraCharacterBase::GetBloodEffect_Implementation()
 {
 	return BloodEffect;
@@ -137,19 +149,19 @@ void AAuraCharacterBase::InitializeDefaultAttributes() const
 	}
 }
 
-FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
+FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& SocketTag)
 {
 	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
-	if (MontageTag.MatchesTagExact(AuraTags.Montage_Attack_Weapon))
+	if (SocketTag.MatchesTagExact(AuraTags.CombatSocket_Weapon))
 	{
 		check(Weapon);
 		return Weapon->GetSocketLocation(WeaponTipSocketName);
 	}
-	if (MontageTag.MatchesTagExact(AuraTags.Montage_Attack_LeftHand))
+	if (SocketTag.MatchesTagExact(AuraTags.CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(LeftHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(AuraTags.Montage_Attack_RightHand))
+	if (SocketTag.MatchesTagExact(AuraTags.CombatSocket_RightHand))
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
