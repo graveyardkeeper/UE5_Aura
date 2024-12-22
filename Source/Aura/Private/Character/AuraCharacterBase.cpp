@@ -8,6 +8,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Aura/Aura.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AAuraCharacterBase::AAuraCharacterBase()
 {
@@ -90,6 +91,11 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 
 	// 溶解角色模型
 	Dissolve();
+
+	if (IsValid(DeathSound))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+	}
 
 	bDead = true;
 }
