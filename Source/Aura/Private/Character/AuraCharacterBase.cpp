@@ -57,6 +57,11 @@ TArray<FTaggedMontage> AAuraCharacterBase::GetAttackMontages_Implementation()
 	return AttackMontages;
 }
 
+UNiagaraSystem* AAuraCharacterBase::GetBloodEffect_Implementation()
+{
+	return BloodEffect;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
 	// 角色死亡，开启模拟物理，布娃娃效果
