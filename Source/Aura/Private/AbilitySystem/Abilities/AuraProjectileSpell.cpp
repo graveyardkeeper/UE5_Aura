@@ -10,7 +10,7 @@
 #include "Actor/AuraProjectile.h"
 #include "Interaction/CombatInterface.h"
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const FGameplayTag& SocketTag)
 {
 	if (!GetAvatarActorFromActorInfo()->HasAuthority())
 	{
@@ -19,8 +19,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation)
 	// spawn a projectile.
 	if (AActor* OwnerActor = GetAvatarActorFromActorInfo(); OwnerActor->Implements<UCombatInterface>())
 	{
-		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(
-			OwnerActor, FAuraGameplayTags::Get().CombatSocket_Weapon);
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(OwnerActor, SocketTag);
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
 		FRotator Direction = (TargetLocation - SocketLocation).Rotation();

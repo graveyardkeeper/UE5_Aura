@@ -61,6 +61,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName RightHandSocketName;
 
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName TailSocketName;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
 	TObjectPtr<UNiagaraSystem> BloodEffect;
 
