@@ -75,6 +75,11 @@ UNiagaraSystem* AAuraCharacterBase::GetBloodEffect_Implementation()
 	return BloodEffect;
 }
 
+int32 AAuraCharacterBase::GetMinionCount_Implementation()
+{
+	return MinionCount;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
 	// 角色死亡，开启模拟物理，布娃娃效果

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #define AURA_DEBUG
+#undef AURA_DEBUG
 
 #define CUSTOM_RENDER_DEPTH_RED 250
 

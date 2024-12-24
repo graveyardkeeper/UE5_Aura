@@ -76,6 +76,7 @@ public:
 	 * Ability Tags
 	 */
 	FGameplayTag Ability_Attack;
+	FGameplayTag Ability_Summon;
 
 
 	/**

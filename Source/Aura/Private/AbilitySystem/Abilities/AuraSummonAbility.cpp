@@ -26,7 +26,16 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 	for (int32 i = 0; i < NumMinions; i++)
 	{
 		const FVector Direction = StartOfSpread.RotateAngleAxis(i * DeltaAngle, FVector::UpVector);
-		const FVector SpawnLocation = Location + Direction * FMath::RandRange(MinSpawnDistance, MaxSpawnDistance);
+		FVector SpawnLocation = Location + Direction * FMath::RandRange(MinSpawnDistance, MaxSpawnDistance);
+
+		// 如果在斜面上，找到贴地的位置
+		FHitResult HitResult;
+		GetWorld()->LineTraceSingleByChannel(HitResult, SpawnLocation + FVector::UpVector * 500,
+		                                     SpawnLocation - FVector::UpVector * 500, ECC_Visibility);
+		if (HitResult.bBlockingHit)
+		{
+			SpawnLocation = HitResult.ImpactPoint;
+		}
 		SpawnLocations.Add(SpawnLocation);
 #ifdef AURA_DEBUG
 		UKismetSystemLibrary::DrawDebugArrow(GetWorld(), Location, Location + Direction * MaxSpawnDistance, 4.f,
@@ -38,4 +47,10 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 	}
 
 	return SpawnLocations;
+}
+
+TSubclassOf<APawn> UAuraSummonAbility::GetRandomMinionClass()
+{
+	check(!MinionClasses.IsEmpty());
+	return MinionClasses[FMath::RandRange(0, MinionClasses.Num() - 1)];
 }

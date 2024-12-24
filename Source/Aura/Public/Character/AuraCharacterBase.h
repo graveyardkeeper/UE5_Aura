@@ -35,6 +35,7 @@ public:
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
+	virtual int32 GetMinionCount_Implementation() override;
 
 	/** 多播，角色死亡时在所有客户端上的表现 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -105,6 +106,9 @@ protected:
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
 
 	bool bDead = false;
+
+	/** Minions */
+	int32 MinionCount = 0;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
