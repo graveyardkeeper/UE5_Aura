@@ -80,6 +80,11 @@ int32 AAuraCharacterBase::GetMinionCount_Implementation()
 	return MinionCount;
 }
 
+void AAuraCharacterBase::IncreaseMinionCount_Implementation(int32 Amount)
+{
+	MinionCount += Amount;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
 	// 角色死亡，开启模拟物理，布娃娃效果

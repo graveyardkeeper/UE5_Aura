@@ -10,7 +10,8 @@
 #include "Actor/AuraProjectile.h"
 #include "Interaction/CombatInterface.h"
 
-void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const FGameplayTag& SocketTag)
+void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const FGameplayTag& SocketTag,
+                                           float PitchOverride)
 {
 	if (!GetAvatarActorFromActorInfo()->HasAuthority())
 	{
@@ -23,6 +24,10 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const 
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
 		FRotator Direction = (TargetLocation - SocketLocation).Rotation();
+		if (PitchOverride != 0.f)
+		{
+			Direction.Pitch = PitchOverride;
+		}
 		SpawnTransform.SetRotation(Direction.Quaternion());
 
 		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
