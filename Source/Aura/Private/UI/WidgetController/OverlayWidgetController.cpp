@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "UI/Widget/AuraUserWidget.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -47,8 +48,10 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		}
 	);
 
+	UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+
 	// broadcast gameplay effect messages.
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->OnEffectAssetTags.AddLambda(
+	AuraASC->OnEffectAssetTags.AddLambda(
 		[this](const FGameplayTagContainer& TagContainer)
 		{
 			for (const FGameplayTag& Tag : TagContainer)
@@ -72,4 +75,35 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		}
 	);
+
+	// on ability given, just an event, no details
+	// 考虑到绑定委托前，StartupAbilities可能已经被赋予，需要手动检查一下
+	if (AuraASC->bStartupAbilitiesGiven)
+	{
+		OnInitializeStartupAbilities(AuraASC);
+	}
+	else
+	{
+		AuraASC->OnAbilityGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+	}
+}
+
+void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraASC)
+{
+	if (!AuraASC->bStartupAbilitiesGiven)
+	{
+		return;
+	}
+	FForEachAbilityDelegate ForEachAbility;
+	ForEachAbility.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
+	{
+		if (const FGameplayTag AbilityTag = UAuraAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec); AbilityTag.
+			IsValid())
+		{
+			FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+			Info.InputTag = UAuraAbilitySystemComponent::GetAbilityInputTagFromSpec(AbilitySpec);
+			OnAbilityInfo.Broadcast(Info);
+		}
+	});
+	AuraASC->ForEachAbility(ForEachAbility); /** 这里的ForEachAbilityDelegate本质上就是个函数传递，用委托实现，目的是对ASC中的每个Ability都执行同一个操作*/
 }
