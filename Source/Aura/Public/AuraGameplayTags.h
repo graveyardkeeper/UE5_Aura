@@ -81,6 +81,12 @@ public:
 
 
 	/**
+	 * Ability Tags
+	 */
+	FGameplayTag Cooldown_Fire_FireBolt;
+
+
+	/**
 	 * Combat Socket Tags
 	 */
 	FGameplayTag CombatSocket_Weapon;
