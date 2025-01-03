@@ -4,6 +4,7 @@
 #include "AbilitySystem/ModMagCalc/MMC_MaxMana.h"
 
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "Aura/AuraLogChannels.h"
 #include "Interaction/CombatInterface.h"
 
 
@@ -28,13 +29,13 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 	Intelligence = FMath::Max<float>(Intelligence, 0.0f);
 
 	int32 Level = 1;
-	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Spec.GetContext().GetSourceObject()))
+	if (Spec.GetContext().GetSourceObject()->Implements<UCombatInterface>())
 	{
-		Level = CombatInterface->GetCharacterLevel();
+		Level = ICombatInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
 	}
 	else
 	{
-		UE_LOG(LogAbilitySystemComponent, Warning, TEXT("MMC_MaxMana: Source object not implement ICombatInterface"))
+		UE_LOG(LogAura, Warning, TEXT("MMC_MaxMana: Source object not implement ICombatInterface"))
 	}
 
 	return 50 + 2.5f * Intelligence + 15 * Level;

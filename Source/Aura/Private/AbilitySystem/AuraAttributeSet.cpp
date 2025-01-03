@@ -9,10 +9,9 @@
 #include "AuraGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
-#include "AbilitySystem/Data/AttributeInfo.h"
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
-#include "Kismet/GameplayStatics.h"
+#include "Interaction/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/AuraPlayerController.h"
 
@@ -97,7 +96,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
+		SetIncomingDamage(0.f); // meta attribute需要被消耗，清空
 
 		if (LocalIncomingDamage > 0.f)
 		{
@@ -122,6 +121,8 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 				{
 					Combat->Die();
 				}
+				// 发送获得经验事件
+				SendXPEvent(EffectProperties);
 			}
 
 			// 显示伤害数字
@@ -130,6 +131,34 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			                 UAuraAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle)
 			);
 		}
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float LocalIncomingXP = GetIncomingXP();
+		SetIncomingXP(0.f);
+
+		if (EffectProperties.SourceAvatarActor->Implements<UPlayerInterface>())
+		{
+			IPlayerInterface::Execute_AddToXP(EffectProperties.SourceAvatarActor, LocalIncomingXP);
+		}
+	}
+}
+
+void UAuraAttributeSet::SendXPEvent(const FEffectProperties& Props)
+{
+	if (Props.TargetAvatarActor->Implements<UCombatInterface>())
+	{
+		const int32 XPReward = UAuraAbilitySystemLibrary::GetXPRewardForCharacterAndLevel(
+			Props.TargetAvatarActor,
+			ICombatInterface::Execute_GetCharacterClass(Props.TargetAvatarActor),
+			ICombatInterface::Execute_GetCharacterLevel(Props.TargetAvatarActor));
+
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = XPReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceAvatarActor,
+		                                                         FAuraGameplayTags::Get().Attribute_Meta_IncomingXP,
+		                                                         Payload);
 	}
 }
 

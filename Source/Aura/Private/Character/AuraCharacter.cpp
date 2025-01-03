@@ -45,9 +45,22 @@ void AAuraCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
-int32 AAuraCharacter::GetCharacterLevel() const
+int32 AAuraCharacter::GetCharacterLevel_Implementation() const
 {
 	return GetPlayerState<AAuraPlayerState>()->GetPlayerLevel();
+}
+
+void AAuraCharacter::AddToXP_Implementation(int32 InXP)
+{
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	check(PS);
+
+	PS->AddToPlayerXP(InXP);
+}
+
+void AAuraCharacter::LevelUp_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Level Up!"));
 }
 
 void AAuraCharacter::InitAbilityActorInfo()
