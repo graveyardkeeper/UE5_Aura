@@ -75,10 +75,21 @@ void UAuraAbilitySystemLibrary::InitCharacterDefaultAttributes(const UObject* Wo
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttrSpecHandle.Data.Get());
 }
 
+UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	const AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (GameMode == nullptr)
+	{
+		// happens on client
+		return nullptr;
+	}
+	return GameMode->CharacterClassInfo;
+}
+
 void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC,
                                                      ECharacterClass CharacterClass)
 {
-	// this function should only call at server
+	// this function should only be called on server
 
 	// 赋予各个角色公共能力，如受击、死亡等
 	const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
@@ -99,16 +110,16 @@ void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	}
 }
 
-UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+int32 UAuraAbilitySystemLibrary::GetXPRewardForCharacterAndLevel(const UObject* WorldContextObject,
+                                                                 ECharacterClass CharacterClass, int32 CharacterLevel)
 {
-	const AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (GameMode == nullptr)
-	{
-		// happens on client
-		return nullptr;
-	}
-	return GameMode->CharacterClassInfo;
+	// this function should only be called on server
+
+	const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	const FCharacterClassDefaultInfo& Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	return Info.XPReward.AsInteger(CharacterLevel);
 }
+
 
 bool UAuraAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
