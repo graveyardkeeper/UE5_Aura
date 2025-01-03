@@ -6,6 +6,8 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "Aura/AuraLogChannels.h"
+#include "Player/AuraPlayerState.h"
 #include "UI/Widget/AuraUserWidget.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -20,8 +22,12 @@ void UOverlayWidgetController::BroadcastInitialValues()
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	const UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
+	// player state上的委托，包括经验、等级、技能点等不在AttributeSet中的属性
+	AAuraPlayerState* PS = CastChecked<AAuraPlayerState>(PlayerState);
+	PS->OnPlayerXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnPlayerXPChanged);
 
+
+	const UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
 	// broadcast base attributes.
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AS->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
@@ -106,4 +112,11 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemCo
 		}
 	});
 	AuraASC->ForEachAbility(ForEachAbility); /** 这里的ForEachAbilityDelegate本质上就是个函数传递，用委托实现，目的是对ASC中的每个Ability都执行同一个操作*/
+}
+
+void UOverlayWidgetController::OnPlayerXPChanged(int32 NewXP)
+{
+	AAuraPlayerState* PS = CastChecked<AAuraPlayerState>(PlayerState);
+
+	OnPlayerXPPercentChanged.Broadcast(PS->GetPlayerXPPercent());
 }
