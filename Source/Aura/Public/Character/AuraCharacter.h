@@ -35,4 +35,12 @@ public:
 
 protected:
 	virtual void InitAbilityActorInfo() override;
+
+	/**这里略显复杂了，因为特效在蓝图中实现，如果只想Server或单机显示特效，直接可以在蓝图中实现PlayerInterface中的LevelUp接口
+	 * 如果想广播到客户端，必须有Multicast注解，但BlueprintImplementableEvent和NetMulticast不能同时存在，所以拆成了两步
+	 */
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLevelUpEffect();
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLevelUpEffect();
 };

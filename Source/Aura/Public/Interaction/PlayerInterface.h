@@ -25,9 +25,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetXP() const;
 
+	// 增加经验，返回升了多少级
 	UFUNCTION(BlueprintNativeEvent)
-	int32 AddToXP(int32 InXP); // 增加经验，返回升了多少级
+	int32 AddToXP(int32 InXP);
 
+	// 处理升级后的动作，如特效等
 	UFUNCTION(BlueprintNativeEvent)
 	void LevelUp();
 };

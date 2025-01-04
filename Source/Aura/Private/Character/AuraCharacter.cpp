@@ -69,6 +69,12 @@ int32 AAuraCharacter::AddToXP_Implementation(int32 InXP)
 
 void AAuraCharacter::LevelUp_Implementation()
 {
+	MulticastLevelUpEffect();
+}
+
+void AAuraCharacter::MulticastLevelUpEffect_Implementation()
+{
+	ShowLevelUpEffect();
 }
 
 void AAuraCharacter::InitAbilityActorInfo()
