@@ -36,10 +36,10 @@ public:
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetPlayerXP() const { return XP; }
 
-	void AddToPlayerXP(int32 InXP);
+	int32 AddToPlayerXP(int32 InXP); // 返回升级的级数
 	void AddToPlayerLevel(int32 InLevel);
 
-	void SetPlayerXP(int32 InXP);
+	int32 SetPlayerXP(int32 InXP);
 	void SetPlayerLevel(int32 InLevel);
 
 	float GetPlayerXPPercent() const;

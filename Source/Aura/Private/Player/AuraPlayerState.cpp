@@ -6,6 +6,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Aura/AuraLogChannels.h"
 #include "Net/UnrealNetwork.h"
 
 AAuraPlayerState::AAuraPlayerState()
@@ -32,9 +33,9 @@ UAbilitySystemComponent* AAuraPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void AAuraPlayerState::AddToPlayerXP(int32 InXP)
+int32 AAuraPlayerState::AddToPlayerXP(int32 InXP)
 {
-	SetPlayerXP(XP + InXP);
+	return SetPlayerXP(XP + InXP);
 }
 
 void AAuraPlayerState::AddToPlayerLevel(int32 InLevel)
@@ -60,11 +61,35 @@ float AAuraPlayerState::GetPlayerXPPercent() const
 	return (XP - XPStart) / (XPEnd - XPStart);
 }
 
-void AAuraPlayerState::SetPlayerXP(int32 InXP)
+int32 AAuraPlayerState::SetPlayerXP(int32 InXP)
 {
 	XP = InXP;
-	Level = LevelUpInfo->FindLevelForXP(XP);
+
+	const int32 CurrLevel = Level;
+	const int32 NewLevel = LevelUpInfo->FindLevelForXP(XP);
+
+	int32 DeltaLevel = 0;
+	if (NewLevel > CurrLevel)
+	{
+		// Level up
+		DeltaLevel = NewLevel - CurrLevel;
+		SetPlayerLevel(NewLevel);
+
+		// 计算本次升级一共获得的属性点和技能点
+		int32 AttributePointsAward = 0;
+		int32 SpellPointsAward = 0;
+		for (int32 i = CurrLevel + 1; i <= NewLevel; i++)
+		{
+			AttributePointsAward += LevelUpInfo->LevelUpInformation[i].AttributePointAward;
+			SpellPointsAward += LevelUpInfo->LevelUpInformation[i].SpellPointAward;
+		}
+		UE_LOG(LogAura, Log, TEXT("Get %d Attribute Points and %d Spell Points"), AttributePointsAward,
+		       SpellPointsAward);
+	}
+
 	OnPlayerXPChangedDelegate.Broadcast(XP);
+
+	return DeltaLevel;
 }
 
 

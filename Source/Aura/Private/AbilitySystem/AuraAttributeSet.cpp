@@ -140,7 +140,16 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 		if (EffectProperties.SourceAvatarActor->Implements<UPlayerInterface>())
 		{
-			IPlayerInterface::Execute_AddToXP(EffectProperties.SourceAvatarActor, LocalIncomingXP);
+			const int32 DeltaLevel = IPlayerInterface::Execute_AddToXP(EffectProperties.SourceAvatarActor,
+			                                                           LocalIncomingXP);
+			if (DeltaLevel > 0)
+			{
+				// 升级，补充血法
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+
+				IPlayerInterface::Execute_LevelUp(EffectProperties.SourceAvatarActor);
+			}
 		}
 	}
 }

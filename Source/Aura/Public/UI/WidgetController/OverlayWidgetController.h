@@ -11,12 +11,6 @@ class UAuraAbilitySystemComponent;
 class UAbilityInfo;
 class UAuraUserWidget;
 
-/** Attributes changed delegates */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
-
-/** end Attributes changed delegates */
-
-
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
 {
@@ -35,12 +29,19 @@ struct FUIWidgetRow : public FTableRowBase
 	UTexture2D* Image;
 };
 
+/** Attributes changed delegates */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+
+/** end Attributes changed delegates */
+
 /** Gameplay effect message delegates*/
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageWidgetRowSignature, FUIWidgetRow, Row);
 
 /** end Gameplay effect message delegates*/
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSignature, const FAuraAbilityInfo&, AbilityInfo);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
 
 /**
  * 
@@ -73,8 +74,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
 	FOnAbilityInfoSignature OnAbilityInfo;
 
-	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
+	UPROPERTY(BlueprintAssignable, Category="GAS|PlayerStats")
 	FOnAttributeChangedSignature OnPlayerXPPercentChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|PlayerStats")
+	FOnPlayerStatChangedSignature OnPlayerLevelChanged;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
@@ -84,8 +88,6 @@ protected:
 	TObjectPtr<UAbilityInfo> AbilityInfo;
 
 	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* AuraASC);
-
-	void OnPlayerXPChanged(int32 NewXP);
 
 	template <typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag Tag) const;

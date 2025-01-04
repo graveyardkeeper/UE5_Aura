@@ -29,7 +29,8 @@ public:
 	virtual int32 GetCharacterLevel_Implementation() const override;
 
 	/** Player Interface. */
-	virtual void AddToXP_Implementation(int32 InXP) override;
+	virtual int32 GetXP_Implementation() const override;
+	virtual int32 AddToXP_Implementation(int32 InXP) override;
 	virtual void LevelUp_Implementation() override;
 
 protected:
