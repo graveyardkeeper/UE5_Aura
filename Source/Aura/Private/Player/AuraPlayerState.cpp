@@ -26,6 +26,8 @@ void AAuraPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(AAuraPlayerState, Level);
 	DOREPLIFETIME(AAuraPlayerState, XP);
+	DOREPLIFETIME(AAuraPlayerState, AttributePoints);
+	DOREPLIFETIME(AAuraPlayerState, SpellPoints);
 }
 
 UAbilitySystemComponent* AAuraPlayerState::GetAbilitySystemComponent() const
@@ -42,6 +44,17 @@ void AAuraPlayerState::AddToPlayerLevel(int32 InLevel)
 {
 	SetPlayerLevel(Level + InLevel);
 }
+
+void AAuraPlayerState::AddToPlayerAttributePoints(int32 InAttributePoints)
+{
+	SetPlayerAttributePoints(AttributePoints + InAttributePoints);
+}
+
+void AAuraPlayerState::AddToPlayerSpellPoints(int32 InSpellPoints)
+{
+	SetPlayerSpellPoints(SpellPoints + InSpellPoints);
+}
+
 
 void AAuraPlayerState::SetPlayerLevel(int32 InLevel)
 {
@@ -83,8 +96,8 @@ int32 AAuraPlayerState::SetPlayerXP(int32 InXP)
 			AttributePointsAward += LevelUpInfo->LevelUpInformation[i].AttributePointAward;
 			SpellPointsAward += LevelUpInfo->LevelUpInformation[i].SpellPointAward;
 		}
-		UE_LOG(LogAura, Log, TEXT("Get %d Attribute Points and %d Spell Points"), AttributePointsAward,
-		       SpellPointsAward);
+		SetPlayerAttributePoints(AttributePointsAward);
+		SetPlayerSpellPoints(SpellPointsAward);
 	}
 
 	OnPlayerXPChangedDelegate.Broadcast(XP);
@@ -92,6 +105,25 @@ int32 AAuraPlayerState::SetPlayerXP(int32 InXP)
 	return DeltaLevel;
 }
 
+void AAuraPlayerState::SetPlayerAttributePoints(int32 InAttributePoints)
+{
+	if (AttributePoints == InAttributePoints)
+	{
+		return;
+	}
+	AttributePoints = InAttributePoints;
+	OnPlayerAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void AAuraPlayerState::SetPlayerSpellPoints(int32 InSpellPoints)
+{
+	if (SpellPoints == InSpellPoints)
+	{
+		return;
+	}
+	SpellPoints = InSpellPoints;
+	OnPlayerSpellPointsChangedDelegate.Broadcast(SpellPoints);
+}
 
 void AAuraPlayerState::OnRep_Level(int32 OldValue)
 {
@@ -101,4 +133,14 @@ void AAuraPlayerState::OnRep_Level(int32 OldValue)
 void AAuraPlayerState::OnRep_XP(int32 OldValue)
 {
 	OnPlayerXPChangedDelegate.Broadcast(XP);
+}
+
+void AAuraPlayerState::OnRep_AttributePoints(int32 OldValue)
+{
+	OnPlayerAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void AAuraPlayerState::OnRep_SpellPoints(int32 OldValue)
+{
+	OnPlayerSpellPointsChangedDelegate.Broadcast(SpellPoints);
 }

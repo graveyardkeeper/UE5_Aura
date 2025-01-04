@@ -31,16 +31,24 @@ public:
 
 	FOnPlayerStatChangedDelegate OnPlayerXPChangedDelegate;
 	FOnPlayerStatChangedDelegate OnPlayerLevelChangedDelegate;
+	FOnPlayerStatChangedDelegate OnPlayerAttributePointsChangedDelegate;
+	FOnPlayerStatChangedDelegate OnPlayerSpellPointsChangedDelegate;
 
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetPlayerXP() const { return XP; }
+	FORCEINLINE int32 GetPlayerAttributePoints() const { return AttributePoints; }
+	FORCEINLINE int32 GetPlayerSpellPoints() const { return SpellPoints; }
 
 	int32 AddToPlayerXP(int32 InXP); // 返回升级的级数
 	void AddToPlayerLevel(int32 InLevel);
+	void AddToPlayerAttributePoints(int32 InAttributePoints);
+	void AddToPlayerSpellPoints(int32 InSpellPoints);
 
 	int32 SetPlayerXP(int32 InXP);
 	void SetPlayerLevel(int32 InLevel);
+	void SetPlayerAttributePoints(int32 InAttributePoints);
+	void SetPlayerSpellPoints(int32 InSpellPoints);
 
 	float GetPlayerXPPercent() const;
 
@@ -61,9 +69,21 @@ private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_XP)
 	int32 XP = 0;
 
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_AttributePoints)
+	int32 AttributePoints = 0;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_SpellPoints)
+	int32 SpellPoints = 0;
+
 	UFUNCTION()
 	void OnRep_Level(int32 OldValue);
 
 	UFUNCTION()
 	void OnRep_XP(int32 OldValue);
+
+	UFUNCTION()
+	void OnRep_AttributePoints(int32 OldValue);
+
+	UFUNCTION()
+	void OnRep_SpellPoints(int32 OldValue);
 };
