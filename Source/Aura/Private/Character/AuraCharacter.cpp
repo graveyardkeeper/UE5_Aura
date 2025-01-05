@@ -56,7 +56,24 @@ int32 AAuraCharacter::GetXP_Implementation() const
 {
 	const AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
 	check(PS);
+
 	return PS->GetPlayerXP();
+}
+
+int32 AAuraCharacter::GetAttributePoints_Implementation() const
+{
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	check(PS);
+
+	return PS->GetPlayerAttributePoints();
+}
+
+int32 AAuraCharacter::GetSpellPoints_Implementation() const
+{
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	check(PS);
+
+	return PS->GetPlayerSpellPoints();
 }
 
 int32 AAuraCharacter::AddToXP_Implementation(int32 InXP)
@@ -65,6 +82,14 @@ int32 AAuraCharacter::AddToXP_Implementation(int32 InXP)
 	check(PS);
 
 	return PS->AddToPlayerXP(InXP);
+}
+
+void AAuraCharacter::AddToAttributePoints_Implementation(int32 InPoints)
+{
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	check(PS);
+
+	PS->AddToPlayerAttributePoints(InPoints);
 }
 
 void AAuraCharacter::LevelUp_Implementation()

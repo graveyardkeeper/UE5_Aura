@@ -4,6 +4,7 @@
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "Player/AuraPlayerState.h"
@@ -45,6 +46,12 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	AAuraPlayerState* PS = CastChecked<AAuraPlayerState>(PlayerState);
 	OnPlayerAttributePointsChanged.Broadcast(PS->GetPlayerAttributePoints());
 	OnPlayerSpellPointsChanged.Broadcast(PS->GetPlayerSpellPoints());
+}
+
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	UAuraAbilitySystemComponent* ASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	ASC->UpgradeAttribute(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& Tag,

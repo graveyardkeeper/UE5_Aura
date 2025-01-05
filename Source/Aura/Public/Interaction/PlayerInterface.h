@@ -25,9 +25,18 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetXP() const;
 
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetAttributePoints() const;
+
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetSpellPoints() const;
+
 	// 增加经验，返回升了多少级
 	UFUNCTION(BlueprintNativeEvent)
 	int32 AddToXP(int32 InXP);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void AddToAttributePoints(int32 InPoints);
 
 	// 处理升级后的动作，如特效等
 	UFUNCTION(BlueprintNativeEvent)

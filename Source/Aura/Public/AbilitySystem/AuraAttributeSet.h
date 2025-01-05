@@ -64,6 +64,8 @@ public:
 
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
+
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	/** All tags to attribute static method */
@@ -275,4 +277,8 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const;
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlockedHit, bool bIsCriticalHit) const;
 	void SendXPEvent(const FEffectProperties& Props);
+
+	// 下一次最大生命/魔法变更时是否补满生命/魔法
+	bool bTopOffHealth = false;
+	bool bTopOffMana = false;
 };
