@@ -59,4 +59,7 @@ public:
 
 	static int32 GetXPRewardForCharacterAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass,
 	                                             int32 CharacterLevel);
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category="AuraAbilitySystemLibrary|GameplayEffects")
+	static FGameplayTagContainer GetEffectSetByCallerTags(const FGameplayEffectSpecHandle& SpecHandle);
 };

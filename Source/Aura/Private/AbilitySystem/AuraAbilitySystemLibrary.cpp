@@ -121,6 +121,21 @@ int32 UAuraAbilitySystemLibrary::GetXPRewardForCharacterAndLevel(const UObject* 
 	return Info.XPReward.AsInteger(CharacterLevel);
 }
 
+FGameplayTagContainer UAuraAbilitySystemLibrary::GetEffectSetByCallerTags(const FGameplayEffectSpecHandle& SpecHandle)
+{
+	// 获取给定Effect中所有的Modifier中设置了SetByCaller的Tag
+	FGameplayTagContainer Tags;
+	for (const FGameplayModifierInfo& Modifier : SpecHandle.Data->Def->Modifiers)
+	{
+		if (Modifier.ModifierMagnitude.GetMagnitudeCalculationType() ==
+			EGameplayEffectMagnitudeCalculation::SetByCaller)
+		{
+			Tags.AddTag(Modifier.ModifierMagnitude.GetSetByCallerFloat().DataTag);
+		}
+	}
+	return Tags;
+}
+
 
 bool UAuraAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
