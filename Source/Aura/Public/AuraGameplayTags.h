@@ -56,6 +56,9 @@ public:
 	FGameplayTag InputTag_Key2;
 	FGameplayTag InputTag_Key3;
 	FGameplayTag InputTag_Key4;
+	/** 被动技能的标签，只用来标识，不会用于触发技能 */
+	FGameplayTag InputTag_Passive_1;
+	FGameplayTag InputTag_Passive_2;
 
 
 	/**

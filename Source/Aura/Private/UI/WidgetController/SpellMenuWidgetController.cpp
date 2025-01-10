@@ -10,4 +10,5 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 
 void USpellMenuWidgetController::BroadcastInitialValues()
 {
+	Super::BroadcastInitialValues();
 }

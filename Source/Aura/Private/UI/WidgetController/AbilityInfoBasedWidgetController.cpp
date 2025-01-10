@@ -13,16 +13,21 @@ void UAbilityInfoBasedWidgetController::BindCallbacksToDependencies()
 	// 考虑到绑定委托前，StartupAbilities可能已经被赋予，需要手动检查一下
 	if (GetAuraASC()->bStartupAbilitiesGiven)
 	{
-		OnInitializeStartupAbilities();
+		BroadcastAbilityInfo();
 	}
 	else
 	{
 		GetAuraASC()->OnAbilityGivenDelegate.AddUObject(
-			this, &UAbilityInfoBasedWidgetController::OnInitializeStartupAbilities);
+			this, &UAbilityInfoBasedWidgetController::BroadcastAbilityInfo);
 	}
 }
 
-void UAbilityInfoBasedWidgetController::OnInitializeStartupAbilities()
+void UAbilityInfoBasedWidgetController::BroadcastInitialValues()
+{
+	BroadcastAbilityInfo();
+}
+
+void UAbilityInfoBasedWidgetController::BroadcastAbilityInfo()
 {
 	if (!GetAuraASC()->bStartupAbilitiesGiven)
 	{

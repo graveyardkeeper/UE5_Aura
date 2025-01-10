@@ -22,6 +22,7 @@ class AURA_API UAbilityInfoBasedWidgetController : public UAuraWidgetController
 
 public:
 	virtual void BindCallbacksToDependencies() override;
+	virtual void BroadcastInitialValues() override;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
 	FOnAbilityInfoSignature OnAbilityInfo;
@@ -30,5 +31,5 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
 
-	void OnInitializeStartupAbilities();
+	void BroadcastAbilityInfo();
 };

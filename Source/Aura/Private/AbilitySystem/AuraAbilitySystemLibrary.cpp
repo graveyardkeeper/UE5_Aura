@@ -21,9 +21,10 @@ bool UAuraAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldC
 		if (OutAuraHUD)
 		{
 			AAuraPlayerState* PS = PC->GetPlayerState<AAuraPlayerState>();
-			FWidgetControllerParams Params(PC, PS, PS->GetAbilitySystemComponent(), PS->GetAttributeSet());
-			OutParams = Params;
-
+			OutParams.PlayerController = PC;
+			OutParams.PlayerState = PS;
+			OutParams.AbilitySystemComponent = PS->GetAbilitySystemComponent();
+			OutParams.AttributeSet = PS->GetAttributeSet();
 			return true;
 		}
 	}
