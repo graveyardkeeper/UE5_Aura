@@ -174,6 +174,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FName("Ability.Fire.FireBolt"),
 		FString("Fire Bolt Ability Tag")
 	);
+	Ability_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Lightning.Electrocute"),
+		FString("Electrocute Ability Tag")
+	);
 
 	Ability_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Ability.HitReact"),
@@ -215,6 +219,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	Cooldown_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Fire.FireBolt"),
 		FString("Fire Bolt Cooldown Tag")
+	);
+	Cooldown_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Lightning.Electrocute"),
+		FString("Electrocute Cooldown Tag")
 	);
 
 	/** Combat Socket Tags */

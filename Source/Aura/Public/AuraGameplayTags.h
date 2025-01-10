@@ -85,6 +85,7 @@ public:
 	FGameplayTag Ability_Attack;
 	FGameplayTag Ability_Summon;
 	FGameplayTag Ability_Fire_FireBolt;
+	FGameplayTag Ability_Lightning_Electrocute;
 
 	FGameplayTag Ability_HitReact;
 
@@ -102,6 +103,7 @@ public:
 	 * Ability Tags
 	 */
 	FGameplayTag Cooldown_Fire_FireBolt;
+	FGameplayTag Cooldown_Lightning_Electrocute;
 
 
 	/**
