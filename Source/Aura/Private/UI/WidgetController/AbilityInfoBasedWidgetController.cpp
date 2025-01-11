@@ -20,6 +20,14 @@ void UAbilityInfoBasedWidgetController::BindCallbacksToDependencies()
 		GetAuraASC()->OnAbilityGivenDelegate.AddUObject(
 			this, &UAbilityInfoBasedWidgetController::BroadcastAbilityInfo);
 	}
+
+	// 能力状态发生变化
+	GetAuraASC()->OnAbilityStatusChangedDelegate.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+	{
+		FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+		Info.StatusTag = StatusTag;
+		OnAbilityInfo.Broadcast(Info);
+	});
 }
 
 void UAbilityInfoBasedWidgetController::BroadcastInitialValues()

@@ -60,6 +60,9 @@ void AAuraPlayerState::SetPlayerLevel(int32 InLevel)
 {
 	Level = InLevel;
 	OnPlayerLevelChangedDelegate.Broadcast(Level);
+
+	// 等级变更，触发更新技能状态
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->UpdateAbilityStatuses(Level);
 }
 
 float AAuraPlayerState::GetPlayerXPPercent() const

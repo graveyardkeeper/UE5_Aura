@@ -51,7 +51,6 @@ class AURA_API UAbilityInfo : public UDataAsset
 public:
 	FAuraAbilityInfo FindAbilityInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
 
-protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AbilityInformation")
 	TArray<FAuraAbilityInfo> AbilityInformation;
 };

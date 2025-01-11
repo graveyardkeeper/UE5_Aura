@@ -5,7 +5,9 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "Aura/AuraLogChannels.h"
 #include "Interaction/PlayerInterface.h"
 
@@ -144,13 +146,52 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityStatusFromSpec(const FGamepl
 	return FGameplayTag();
 }
 
+FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	FScopedAbilityListLock Lock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.Ability->AbilityTags.HasTagExact(AbilityTag))
+		{
+			return &AbilitySpec;
+		}
+	}
+	return nullptr;
+}
+
 void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
 	// 加点需要RPC到Server
-	if (GetAvatarActor()->Implements<UPlayerInterface>() && IPlayerInterface::Execute_GetAttributePoints(
-		GetAvatarActor()) > 0)
+	if (GetAvatarActor()->Implements<UPlayerInterface>() && IPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
 	{
 		ServerUpgradeAttribute(AttributeTag);
+	}
+}
+
+void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
+{
+	// 通过等级的变更驱动技能状态的变更。这里会导致技能从Locked状态（没有赋予角色的）转换为Eligible状态（角色可解锁的）。
+	const UAbilityInfo* AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	for (const FAuraAbilityInfo& Info : AbilityInfo->AbilityInformation)
+	{
+		if (!Info.AbilityTag.IsValid())
+		{
+			continue;
+		}
+		if (PlayerLevel < Info.LevelRequirement)
+		{
+			continue;
+		}
+		if (GetSpecFromAbilityTag(Info.AbilityTag) == nullptr)
+		{
+			// 角色等级满足要求但没有拥有该技能，说明该技能时可解锁的Eligible状态，赋予角色该技能，但不指定InputTag，也就是说还无法施放该技能
+			FGameplayAbilitySpec Spec = FGameplayAbilitySpec(Info.Ability, 1);
+			Spec.DynamicAbilityTags.AddTag(FAuraGameplayTags::Get().Ability_Status_Eligible);
+			GiveAbility(Spec);
+			MarkAbilitySpecDirty(Spec); //////** 强制立即复制此Ability到客户端 *///////
+
+			ClientUpdateAbilityStatus(Info.AbilityTag, FAuraGameplayTags::Get().Ability_Status_Eligible);
+		}
 	}
 }
 
@@ -176,4 +217,9 @@ void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
 		bStartupAbilitiesGiven = true;
 		OnAbilityGivenDelegate.Broadcast();
 	}
+}
+
+void UAuraAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+{
+	OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag);
 }
