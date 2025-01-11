@@ -25,6 +25,9 @@ public:
 	virtual void BroadcastInitialValues() override;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
+	FOnPlayerStatChangedSignature OnPlayerSpellPointsChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
 	FOnAbilityInfoSignature OnAbilityInfo;
 
 protected:

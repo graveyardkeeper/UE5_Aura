@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "Player/AuraPlayerState.h"
 
 
 void UAbilityInfoBasedWidgetController::BindCallbacksToDependencies()
@@ -28,11 +29,17 @@ void UAbilityInfoBasedWidgetController::BindCallbacksToDependencies()
 		Info.StatusTag = StatusTag;
 		OnAbilityInfo.Broadcast(Info);
 	});
+
+	GetAuraPS()->OnPlayerSpellPointsChangedDelegate.AddLambda([this](int32 Value)
+	{
+		OnPlayerSpellPointsChanged.Broadcast(Value);
+	});
 }
 
 void UAbilityInfoBasedWidgetController::BroadcastInitialValues()
 {
 	BroadcastAbilityInfo();
+	OnPlayerSpellPointsChanged.Broadcast(GetAuraPS()->GetPlayerSpellPoints());
 }
 
 void UAbilityInfoBasedWidgetController::BroadcastAbilityInfo()
