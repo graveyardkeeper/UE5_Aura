@@ -33,4 +33,6 @@ protected:
 	/** 一个Ability可能有多个不同属性的伤害 */
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
 	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+
+	float GetDamageByDamageType(int32 Level, const FGameplayTag& DamageType);
 };
