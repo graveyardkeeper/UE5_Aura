@@ -33,7 +33,11 @@ void USpellMenuWidgetController::SpellSelected(const FGameplayTag& AbilityTag)
 	bool bShouldEnableEquipSpell = false;
 	ShouldEnableButtons(StatusTag, GetAuraPS()->GetPlayerSpellPoints(), bShouldEnableSpendPoints, bShouldEnableEquipSpell);
 
-	OnSpellSelectedDelegate.Broadcast(bShouldEnableSpendPoints, bShouldEnableEquipSpell);
+	FString Description;
+	FString NextLevelDescription;
+	GetAuraASC()->GetDescriptionsByAbilityTag(AbilityTag, Description, NextLevelDescription);
+
+	OnSpellSelectedDelegate.Broadcast(bShouldEnableSpendPoints, bShouldEnableEquipSpell, Description, NextLevelDescription);
 }
 
 void USpellMenuWidgetController::SpendSpellPoint(const FGameplayTag& AbilityTag)

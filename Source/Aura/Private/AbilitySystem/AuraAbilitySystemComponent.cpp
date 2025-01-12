@@ -230,6 +230,24 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
 	}
 }
 
+bool UAuraAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		if (UAuraGameplayAbility* AuraAbility = Cast<UAuraGameplayAbility>(Spec->Ability))
+		{
+			OutDescription = AuraAbility->GetDescription(Spec->Level);
+			OutNextLevelDescription = AuraAbility->GetNextLevelDescription(Spec->Level + 1);
+			return true;
+		}
+	}
+	// 未获得的技能，返回锁定文案
+	const UAbilityInfo* AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	OutDescription = UAuraGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoForTag(AbilityTag).LevelRequirement);
+	OutNextLevelDescription = FString();
+	return false;
+}
+
 void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
 {
 	// 升级属性

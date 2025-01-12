@@ -52,6 +52,8 @@ public:
 
 	void UpdateAbilityStatuses(int32 PlayerLevel);
 
+	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
+
 protected:
 	/** 能力在Server端可激活状态变化时，用来通知Client*/
 	virtual void OnRep_ActivateAbilities() override;

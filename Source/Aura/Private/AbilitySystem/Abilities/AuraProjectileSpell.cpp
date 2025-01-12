@@ -79,3 +79,17 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
+
+FString UAuraProjectileSpell::GetDescription(int32 Level)
+{
+	const int32 Damage = DamageTypes[FAuraGameplayTags::Get().Damage_Fire].AsInteger(Level);
+	const int32 ProjectileNum = FMath::Min(Level, MaxProjectilesNum);
+	return FString::Printf(TEXT("<Title>FIRE BOLT</>\n\n<Default>Launches </><Amount>%d</><Default> bolt of fire, exploding on impact and dealing </><Damage>%d</><Default> fire damage with a chance to burn</>\n\n<Small>Level: </><Level>%d</>"), ProjectileNum, Damage, Level);
+}
+
+FString UAuraProjectileSpell::GetNextLevelDescription(int32 Level)
+{
+	const int32 Damage = DamageTypes[FAuraGameplayTags::Get().Damage_Fire].AsInteger(Level);
+	const int32 ProjectileNum = FMath::Min(Level, MaxProjectilesNum);
+	return FString::Printf(TEXT("<Title>NEXT LEVEL:</>\n\n<Default>Launches </><Amount>%d</><Default> bolt of fire, exploding on impact and dealing </><Damage>%d</><Default> fire damage with a chance to burn</>\n\n<Small>Level: </><Level>%d</>"), ProjectileNum, Damage, Level);
+}

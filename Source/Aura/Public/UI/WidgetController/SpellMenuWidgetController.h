@@ -7,7 +7,7 @@
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "SpellMenuWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSpellSelectedDelegate, bool, bEnableSpendPoints, bool, bEnableEquipSpell);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnSpellSelectedDelegate, bool, bEnableSpendPoints, bool, bEnableEquipSpell, FString, Desc, FString, NextLevelDesc);
 
 /**
  * 
