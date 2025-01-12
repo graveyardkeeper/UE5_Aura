@@ -168,6 +168,41 @@ void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& Attribute
 	}
 }
 
+void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
+{
+	if (!GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		return;
+	}
+	if (IPlayerInterface::Execute_GetSpellPoints(GetAvatarActor()) <= 0)
+	{
+		return;
+	}
+	if (FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		// 消耗技能点
+		IPlayerInterface::Execute_AddToSpellPoints(GetAvatarActor(), -1);
+
+		const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
+		FGameplayTag StatusTag = GetAbilityStatusFromSpec(*Spec);
+		if (StatusTag.MatchesTagExact(AuraTags.Ability_Status_Eligible))
+		{
+			Spec->DynamicAbilityTags.RemoveTag(AuraTags.Ability_Status_Eligible);
+
+			StatusTag = AuraTags.Ability_Status_Unlocked;
+			Spec->DynamicAbilityTags.AddTag(StatusTag);
+		}
+		else if (StatusTag.MatchesTagExact(AuraTags.Ability_Status_Unlocked) || StatusTag.MatchesTagExact(AuraTags.Ability_Status_Equipped))
+		{
+			++Spec->Level;
+		}
+
+		OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag, Spec->Level);
+
+		MarkAbilitySpecDirty(*Spec);
+	}
+}
+
 void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
 {
 	// 通过等级的变更驱动技能状态的变更。这里会导致技能从Locked状态（没有赋予角色的）转换为Eligible状态（角色可解锁的）。
@@ -190,7 +225,7 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
 			GiveAbility(Spec);
 			MarkAbilitySpecDirty(Spec); //////** 强制立即复制此Ability到客户端 *///////
 
-			ClientUpdateAbilityStatus(Info.AbilityTag, FAuraGameplayTags::Get().Ability_Status_Eligible);
+			ClientUpdateAbilityStatus(Info.AbilityTag, FAuraGameplayTags::Get().Ability_Status_Eligible, Spec.Level);
 		}
 	}
 }
@@ -219,7 +254,7 @@ void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
 	}
 }
 
-void UAuraAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+void UAuraAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
 {
-	OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag);
+	OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag, AbilityLevel);
 }

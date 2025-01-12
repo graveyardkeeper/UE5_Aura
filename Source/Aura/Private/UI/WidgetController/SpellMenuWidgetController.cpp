@@ -36,6 +36,11 @@ void USpellMenuWidgetController::SpellSelected(const FGameplayTag& AbilityTag)
 	OnSpellSelectedDelegate.Broadcast(bShouldEnableSpendPoints, bShouldEnableEquipSpell);
 }
 
+void USpellMenuWidgetController::SpendSpellPoint(const FGameplayTag& AbilityTag)
+{
+	GetAuraASC()->ServerSpendSpellPoint(AbilityTag);
+}
+
 void USpellMenuWidgetController::ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell)
 {
 	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();

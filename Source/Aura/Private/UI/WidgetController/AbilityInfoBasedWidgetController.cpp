@@ -23,7 +23,7 @@ void UAbilityInfoBasedWidgetController::BindCallbacksToDependencies()
 	}
 
 	// 能力状态发生变化
-	GetAuraASC()->OnAbilityStatusChangedDelegate.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+	GetAuraASC()->OnAbilityStatusChangedDelegate.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
 	{
 		FAuraAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
 		Info.StatusTag = StatusTag;

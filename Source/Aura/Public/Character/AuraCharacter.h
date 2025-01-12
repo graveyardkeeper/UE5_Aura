@@ -34,6 +34,7 @@ public:
 	virtual int32 GetSpellPoints_Implementation() const override;
 	virtual int32 AddToXP_Implementation(int32 InXP) override;
 	virtual void AddToAttributePoints_Implementation(int32 InPoints) override;
+	virtual void AddToSpellPoints_Implementation(int32 InPoints) override;
 	virtual void LevelUp_Implementation() override;
 
 protected:

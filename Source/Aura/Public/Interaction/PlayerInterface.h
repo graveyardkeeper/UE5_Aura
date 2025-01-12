@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void AddToAttributePoints(int32 InPoints);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void AddToSpellPoints(int32 InPoints);
+
 	// 处理升级后的动作，如特效等
 	UFUNCTION(BlueprintNativeEvent)
 	void LevelUp();

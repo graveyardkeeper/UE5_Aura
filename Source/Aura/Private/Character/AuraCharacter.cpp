@@ -92,6 +92,14 @@ void AAuraCharacter::AddToAttributePoints_Implementation(int32 InPoints)
 	PS->AddToPlayerAttributePoints(InPoints);
 }
 
+void AAuraCharacter::AddToSpellPoints_Implementation(int32 InPoints)
+{
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	check(PS);
+
+	PS->AddToPlayerSpellPoints(InPoints);
+}
+
 void AAuraCharacter::LevelUp_Implementation()
 {
 	MulticastLevelUpEffect();

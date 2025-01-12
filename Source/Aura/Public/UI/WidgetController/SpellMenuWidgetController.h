@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
 	void SpellSelected(const FGameplayTag& AbilityTag);
 
+	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
+	void SpendSpellPoint(const FGameplayTag& AbilityTag);
+
 protected:
 	static void ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell);
 };
