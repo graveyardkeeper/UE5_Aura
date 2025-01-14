@@ -9,6 +9,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnSpellSelectedDelegate, bool, bEnableSpendPoints, bool, bEnableEquipSpell, FString, Desc, FString, NextLevelDesc);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWaitForEquipSpellDelegate, const FGameplayTag&, AbilityType);
+
 /**
  * 
  */
@@ -21,6 +23,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
 	FOnSpellSelectedDelegate OnSpellSelectedDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
+	FWaitForEquipSpellDelegate WaitForEquipSpellDelegate;
+
 	virtual void BindCallbacksToDependencies() override;
 	virtual void BroadcastInitialValues() override;
 
@@ -30,6 +35,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
 	void SpendSpellPoint(const FGameplayTag& AbilityTag);
+
+	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
+	void OnEquipSpellClicked(const FGameplayTag& AbilityTag);
 
 protected:
 	static void ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell);
