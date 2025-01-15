@@ -30,6 +30,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Abilities")
 	FOnAbilityInfoSignature OnAbilityInfo;
 
+	void OnSpellEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")
 	TObjectPtr<UAbilityInfo> AbilityInfo;

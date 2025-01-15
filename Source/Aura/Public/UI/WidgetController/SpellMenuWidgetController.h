@@ -43,8 +43,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
 	void EquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);
 
-	void OnSpellEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
-
 protected:
 	static void ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell);
 };
