@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnEffectAssetTagsDelegate, const FGameplayT
 DECLARE_MULTICAST_DELEGATE(FOnAbilityGivenDelegate);
 DECLARE_DELEGATE_OneParam(FForEachAbilityDelegate, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAbilityStatusChangedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Status Tag */, int32 /*Ability Level*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnSpellEquippedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Input Tag */, const FGameplayTag& /*Prev Input Tag*/);
 
 /**
  * 
@@ -23,6 +24,7 @@ public:
 	FOnEffectAssetTagsDelegate OnEffectAssetTags;
 	FOnAbilityGivenDelegate OnAbilityGivenDelegate;
 	FOnAbilityStatusChangedDelegate OnAbilityStatusChangedDelegate;
+	FOnSpellEquippedDelegate OnSpellEquippedDelegate;
 
 	bool bStartupAbilitiesGiven = false;
 
@@ -36,11 +38,13 @@ public:
 
 	void ForEachAbility(const FForEachAbilityDelegate& Delegate);
 
+	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec);
-
-	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetInputTagFromAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetAbilityStatusFromAbilityTag(const FGameplayTag& AbilityTag);
 
 	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
@@ -50,9 +54,19 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);
+
+	UFUNCTION(Client, Reliable)
+	void ClientEquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
+
 	void UpdateAbilityStatuses(int32 PlayerLevel);
 
 	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
+
+	void ClearAbilityInputTag(FGameplayAbilitySpec* AbilitySpec);
+	void ClearAbilitiesOfInputTag(const FGameplayTag& InputTag);
+	static bool AbilityHasInputTag(const FGameplayAbilitySpec* AbilitySpec, const FGameplayTag& InputTag);
 
 protected:
 	/** 能力在Server端可激活状态变化时，用来通知Client*/

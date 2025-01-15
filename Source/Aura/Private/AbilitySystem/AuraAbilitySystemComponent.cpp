@@ -146,6 +146,24 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityStatusFromSpec(const FGamepl
 	return FGameplayTag();
 }
 
+FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		return GetAbilityInputTagFromSpec(*Spec);
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetAbilityStatusFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		return GetAbilityStatusFromSpec(*Spec);
+	}
+	return FGameplayTag();
+}
+
 FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock Lock(*this);
@@ -203,6 +221,56 @@ void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGa
 	}
 }
 
+void UAuraAbilitySystemComponent::ServerEquipSpell_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag)
+{
+	/** 装备技能，如果目标槽位上已有装备技能，会被顶替 */
+	FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag);
+	if (Spec == nullptr)
+	{
+		return;
+	}
+	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
+	// 1. 确保技能状态正常，仅Unlocked和Equipped状态的技能可以装备
+	const FGameplayTag SpellStatus = GetAbilityStatusFromSpec(*Spec);
+	if (!(SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Equipped) || SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Unlocked)))
+	{
+		return;
+	}
+	// 2. 确保技能类型和槽位类型匹配（主动/被动）
+	const FGameplayTag SpellType = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor())->FindAbilityInfoForTag(AbilityTag).AbilityType;
+	const FGameplayTag SlotType = InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag.Passive"))) ? AuraTags.Ability_Type_Passive : AuraTags.Ability_Type_Offensive;
+	if (!SpellType.MatchesTagExact(SlotType))
+	{
+		return;
+	}
+	// 3. 装备技能
+	FGameplayTag PrevSlot;
+	if (SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Equipped))
+	{
+		// Equipped状态
+		PrevSlot = GetAbilityInputTagFromSpec(*Spec);
+		ClearAbilityInputTag(Spec); // 当前技能已装备，卸载其槽位
+	}
+	else
+	{
+		// Unlocked状态，更新状态为Equipped
+		Spec->DynamicAbilityTags.RemoveTag(AuraTags.Ability_Status_Unlocked);
+		Spec->DynamicAbilityTags.AddTag(AuraTags.Ability_Status_Equipped);
+	}
+
+	ClearAbilitiesOfInputTag(InputTag); // 清除目标槽位上已经装备的技能
+	Spec->DynamicAbilityTags.AddTag(InputTag); // 将当前槽位赋予当前技能，完成技能装备
+
+	MarkAbilitySpecDirty(*Spec);
+
+	ClientEquipSpell(AbilityTag, InputTag, PrevSlot);
+}
+
+void UAuraAbilitySystemComponent::ClientEquipSpell_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag)
+{
+	OnSpellEquippedDelegate.Broadcast(AbilityTag, InputTag, PrevInputTag);
+}
+
 void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
 {
 	// 通过等级的变更驱动技能状态的变更。这里会导致技能从Locked状态（没有赋予角色的）转换为Eligible状态（角色可解锁的）。
@@ -245,6 +313,36 @@ bool UAuraAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag
 	const UAbilityInfo* AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
 	OutDescription = UAuraGameplayAbility::GetLockedDescription(AbilityInfo->FindAbilityInfoForTag(AbilityTag).LevelRequirement);
 	OutNextLevelDescription = FString();
+	return false;
+}
+
+void UAuraAbilitySystemComponent::ClearAbilityInputTag(FGameplayAbilitySpec* AbilitySpec)
+{
+	const FGameplayTag InputTag = GetAbilityInputTagFromSpec(*AbilitySpec);
+	AbilitySpec->DynamicAbilityTags.RemoveTag(InputTag);
+}
+
+void UAuraAbilitySystemComponent::ClearAbilitiesOfInputTag(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock Lock(*this);
+	for (FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (AbilityHasInputTag(&Spec, InputTag))
+		{
+			ClearAbilityInputTag(&Spec);
+		}
+	}
+}
+
+bool UAuraAbilitySystemComponent::AbilityHasInputTag(const FGameplayAbilitySpec* AbilitySpec, const FGameplayTag& InputTag)
+{
+	for (const FGameplayTag& Tag : AbilitySpec->DynamicAbilityTags)
+	{
+		if (Tag.MatchesTagExact(InputTag))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 

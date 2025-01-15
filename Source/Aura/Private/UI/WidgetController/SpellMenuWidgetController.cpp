@@ -11,6 +11,8 @@
 void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
 	Super::BindCallbacksToDependencies();
+
+	GetAuraASC()->OnSpellEquippedDelegate.AddUObject(this, &USpellMenuWidgetController::OnSpellEquipped);
 }
 
 void USpellMenuWidgetController::BroadcastInitialValues()
@@ -50,6 +52,27 @@ void USpellMenuWidgetController::OnEquipSpellClicked(const FGameplayTag& Ability
 {
 	// 点击装备技能按钮，通知选中技能的类型，让蓝图做动画
 	WaitForEquipSpellDelegate.Broadcast(AbilityInfo->FindAbilityInfoForTag(AbilityTag).AbilityType);
+}
+
+void USpellMenuWidgetController::EquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag)
+{
+	GetAuraASC()->ServerEquipSpell(AbilityTag, InputTag);
+}
+
+void USpellMenuWidgetController::OnSpellEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag)
+{
+	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
+
+	FAuraAbilityInfo LastSlotInfo;
+	LastSlotInfo.AbilityTag = FGameplayTag(); // None
+	LastSlotInfo.StatusTag = AuraTags.Ability_Status_Unlocked;
+	LastSlotInfo.InputTag = PrevInputTag;
+	OnAbilityInfo.Broadcast(LastSlotInfo); // 同步上一个槽位的空技能消息，用于清除UI
+
+	FAuraAbilityInfo CurrentSlotInfo = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+	CurrentSlotInfo.StatusTag = AuraTags.Ability_Status_Equipped;
+	CurrentSlotInfo.InputTag = InputTag;
+	OnAbilityInfo.Broadcast(CurrentSlotInfo); // 同步新装备的技能
 }
 
 void USpellMenuWidgetController::ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell)

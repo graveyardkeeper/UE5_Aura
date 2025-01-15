@@ -39,6 +39,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
 	void OnEquipSpellClicked(const FGameplayTag& AbilityTag);
 
+	/** 把技能AbilityTag装备到输入槽位InputTag上 */
+	UFUNCTION(BlueprintCallable, Category="GAS|Abilities")
+	void EquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);
+
+	void OnSpellEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
+
 protected:
 	static void ShouldEnableButtons(const FGameplayTag& StatusTag, int32 SpellPoints, bool& bShouldEnableSpendPoints, bool& bShouldEnableEquipSpell);
 };
