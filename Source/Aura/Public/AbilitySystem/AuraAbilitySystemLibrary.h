@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AuraAbilitySystemLibrary.generated.h"
 
+struct FDamageEffectParams;
 class UAbilityInfo;
 struct FWidgetControllerParams;
 class AAuraHUD;
@@ -78,4 +79,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category="AuraAbilitySystemLibrary|GameplayEffects")
 	static FGameplayTagContainer GetEffectSetByCallerTags(const FGameplayEffectSpecHandle& SpecHandle);
+
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|GameplayEffects")
+	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams);
 };

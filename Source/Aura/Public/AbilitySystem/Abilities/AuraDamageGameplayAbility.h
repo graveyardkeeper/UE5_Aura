@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AuraAbilityTypes.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 #include "Interaction/CombatInterface.h"
 #include "AuraDamageGameplayAbility.generated.h"
@@ -18,6 +19,8 @@ class AURA_API UAuraDamageGameplayAbility : public UAuraGameplayAbility
 public:
 	UFUNCTION(BlueprintCallable)
 	void CauseDamage(AActor* TargetActor);
+
+	FDamageEffectParams MakeDamageParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 
 protected:
 	/** Helper */
@@ -37,4 +40,20 @@ protected:
 	/** 伤害量 */
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
 	FScalableFloat Damage;
+
+	/** Debuff概率 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float DebuffChance = 0.f;
+
+	/** Debuff伤害 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float DebuffDamage = 0.f;
+
+	/** Debuff频率 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float DebuffFrequency = 0.f;
+
+	/** Debuff持续时间 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float DebuffDuration = 0.f;
 };
