@@ -16,12 +16,9 @@ void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 FGameplayEffectSpecHandle UAuraDamageGameplayAbility::MakeDamageEffectSpecHandle()
 {
 	const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
-	// 对每个不同伤害类型，向SetByCaller的修饰符添加对应的tag和伤害值
-	for (auto& DamageType : DamageTypes)
-	{
-		const float ScaledDamage = DamageType.Value.AsInteger(GetAbilityLevel());
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType.Key, ScaledDamage);
-	}
+	// 向SetByCaller的修饰符添加对应的tag和伤害值
+	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaledDamage);
 	return SpecHandle;
 }
 
@@ -31,12 +28,9 @@ FGameplayEffectSpecHandle UAuraDamageGameplayAbility::MakeDamageEffectSpecHandle
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),
 	                                                                         ContextHandle);
-	// 对每个不同伤害类型，向SetByCaller的修饰符添加对应的tag和伤害值
-	for (auto& DamageType : DamageTypes)
-	{
-		const float ScaledDamage = DamageType.Value.AsInteger(GetAbilityLevel());
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType.Key, ScaledDamage);
-	}
+	// 向SetByCaller的修饰符添加对应的tag和伤害值
+	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaledDamage);
 	return SpecHandle;
 }
 
@@ -48,10 +42,4 @@ FTaggedMontage UAuraDamageGameplayAbility::GetRandomTaggedMontageFromArray(
 		return FTaggedMontage();
 	}
 	return TaggedMontages[FMath::RandRange(0, TaggedMontages.Num() - 1)];
-}
-
-float UAuraDamageGameplayAbility::GetDamageByDamageType(int32 Level, const FGameplayTag& DamageType)
-{
-	checkf(DamageTypes.Contains(DamageType), TEXT("Gameplay Ability [%s] does not contain Damage Type [%s]"), *GetNameSafe(this), *DamageType.ToString());
-	return DamageTypes[DamageType].GetValueAtLevel(Level);
 }

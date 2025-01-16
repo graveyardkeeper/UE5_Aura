@@ -7,7 +7,7 @@
 
 FString UAuraFireBolt::GetDescription(int32 Level)
 {
-	const int32 Damage = GetDamageByDamageType(Level, FAuraGameplayTags::Get().Damage_Fire);
+	const int32 DamageAmount = Damage.GetValueAtLevel(Level);
 	const int32 ProjectileNum = FMath::Min(Level, MaxProjectilesNum);
 	return FString::Printf(TEXT(
 		"<Title>FIRE BOLT</>\n\n"
@@ -23,13 +23,13 @@ FString UAuraFireBolt::GetDescription(int32 Level)
 	                       GetManaCost(Level),
 	                       GetCooldown(Level),
 	                       ProjectileNum,
-	                       Damage
+	                       DamageAmount
 	);
 }
 
 FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
 {
-	const int32 Damage = GetDamageByDamageType(Level, FAuraGameplayTags::Get().Damage_Fire);
+	const int32 DamageAmount = Damage.GetValueAtLevel(Level);
 	const int32 ProjectileNum = FMath::Min(Level, MaxProjectilesNum);
 	return FString::Printf(TEXT(
 		"<Title>NEXT LEVEL:</>\n\n"
@@ -45,6 +45,6 @@ FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
 	                       GetManaCost(Level),
 	                       GetCooldown(Level),
 	                       ProjectileNum,
-	                       Damage
+	                       DamageAmount
 	);
 }

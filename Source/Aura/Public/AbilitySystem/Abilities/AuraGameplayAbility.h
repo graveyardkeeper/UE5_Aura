@@ -15,7 +15,7 @@ class AURA_API UAuraGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category="Input")
+	UPROPERTY(EditDefaultsOnly, Category="Input", meta=(Categories="InputTag"))
 	FGameplayTag StartupInputTag;
 
 	float GetManaCost(int32 Level = 1) const;

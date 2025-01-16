@@ -30,9 +30,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
-	/** 一个Ability可能有多个不同属性的伤害 */
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+	/** 伤害类型 Damage.*标签 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage", meta=(Categories="Damage"))
+	FGameplayTag DamageType;
 
-	float GetDamageByDamageType(int32 Level, const FGameplayTag& DamageType);
+	/** 伤害量 */
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	FScalableFloat Damage;
 };

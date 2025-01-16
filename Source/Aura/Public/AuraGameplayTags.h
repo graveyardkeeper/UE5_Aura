@@ -70,7 +70,10 @@ public:
 	FGameplayTag Damage_Arcane;
 	FGameplayTag Damage_Physical;
 
-	TMap<FGameplayTag, FGameplayTag> DamageTypes2Resistances;
+	FGameplayTag Debuff_Burn;
+	FGameplayTag Debuff_Stun;
+	FGameplayTag Debuff_Arcane;
+	FGameplayTag Debuff_Physical;
 
 
 	/**
@@ -121,6 +124,10 @@ public:
 	FGameplayTag Montage_Attack_2;
 	FGameplayTag Montage_Attack_3;
 	FGameplayTag Montage_Attack_4;
+
+	/** 一些标签的关联关系 */
+	TMap<FGameplayTag, FGameplayTag> DamageTypes2Resistances;
+	TMap<FGameplayTag, FGameplayTag> DamageTypes2Debuffs;
 
 private:
 	static FAuraGameplayTags Singleton;

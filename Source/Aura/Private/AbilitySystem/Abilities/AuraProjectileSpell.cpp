@@ -50,20 +50,6 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const 
 		HitResult.Location = TargetLocation;
 		EffectContextHandle.AddHitResult(HitResult);
 
-		/** 这段代码是用来遇到问题恢复的，不确定挪到基类的代码是否正确
-		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),
-			EffectContextHandle);
-
-		// 对每个不同伤害类型，向SetByCaller的修饰符添加对应的tag和伤害值
-		// todo，这段逻辑应该放到DamageAbility基类中
-		for (auto& DamageType : DamageTypes)
-		{
-			const float ScaledDamage = DamageType.Value.AsInteger(GetAbilityLevel());
-			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType.Key, ScaledDamage);
-		}
-
-		Projectile->DamageEffectSpecHandle = SpecHandle;
-		*/
 		Projectile->DamageEffectSpecHandle = MakeDamageEffectSpecHandle(EffectContextHandle);
 
 		Projectile->FinishSpawning(SpawnTransform);
