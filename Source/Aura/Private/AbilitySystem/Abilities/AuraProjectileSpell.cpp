@@ -35,23 +35,7 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& TargetLocation, const 
 			Cast<APawn>(GetOwningActorFromActorInfo()),
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-		// give projectile a damage effect
-		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(
-			GetAvatarActorFromActorInfo());
-
-		// 填充Context，AbilitySystem本身不需要，但消费侧需要
-		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		EffectContextHandle.SetAbility(this);
-		EffectContextHandle.AddSourceObject(Projectile);
-		TArray<TWeakObjectPtr<AActor>> Actors;
-		Actors.Add(Projectile);
-		EffectContextHandle.AddActors(Actors);
-		FHitResult HitResult;
-		HitResult.Location = TargetLocation;
-		EffectContextHandle.AddHitResult(HitResult);
-
-		Projectile->DamageEffectSpecHandle = MakeDamageEffectSpecHandle(EffectContextHandle);
-
+		Projectile->DamageEffectParams = MakeDamageParamsFromClassDefaults(); // 此时还不知道TargetActor，所以不设置
 		Projectile->FinishSpawning(SpawnTransform);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectTypes.h"
 #include "AuraAbilityTypes.generated.h"
 
@@ -9,6 +10,11 @@ USTRUCT(BlueprintType)
 struct FDamageEffectParams
 {
 	GENERATED_BODY()
+
+	void SetTargetActor(AActor* TargetActor)
+	{
+		TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	}
 
 	UPROPERTY()
 	TObjectPtr<UObject> WorldContextObject;

@@ -23,10 +23,6 @@ public:
 	FDamageEffectParams MakeDamageParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 
 protected:
-	/** Helper */
-	FGameplayEffectSpecHandle MakeDamageEffectSpecHandle();
-	FGameplayEffectSpecHandle MakeDamageEffectSpecHandle(const FGameplayEffectContextHandle& ContextHandle);
-
 	UFUNCTION(BlueprintPure)
 	FTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const;
 

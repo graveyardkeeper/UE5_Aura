@@ -5,12 +5,11 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
 void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
-	FGameplayEffectSpecHandle SpecHandle = MakeDamageEffectSpecHandle();
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	UAuraAbilitySystemLibrary::ApplyDamageEffect(MakeDamageParamsFromClassDefaults(TargetActor));
 }
 
 FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefaults(AActor* TargetActor) const
@@ -30,27 +29,6 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefault
 	Params.DebuffDuration = DebuffDuration;
 
 	return Params;
-}
-
-FGameplayEffectSpecHandle UAuraDamageGameplayAbility::MakeDamageEffectSpecHandle()
-{
-	const FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
-	// 向SetByCaller的修饰符添加对应的tag和伤害值
-	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaledDamage);
-	return SpecHandle;
-}
-
-FGameplayEffectSpecHandle UAuraDamageGameplayAbility::MakeDamageEffectSpecHandle(
-	const FGameplayEffectContextHandle& ContextHandle)
-{
-	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
-	const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(),
-	                                                                         ContextHandle);
-	// 向SetByCaller的修饰符添加对应的tag和伤害值
-	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageType, ScaledDamage);
-	return SpecHandle;
 }
 
 FTaggedMontage UAuraDamageGameplayAbility::GetRandomTaggedMontageFromArray(
