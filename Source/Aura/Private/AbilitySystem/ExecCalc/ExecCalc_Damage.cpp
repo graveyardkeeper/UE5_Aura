@@ -32,6 +32,9 @@ UExecCalc_Damage::UExecCalc_Damage()
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
                                               FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
+	// 重要！需要手动初始化DamageStatics中Tag相关的设置
+	DamageStatics().InitializeTagsStuff();
+
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
 	const AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
@@ -54,18 +57,20 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluateParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluateParams.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
-	// 重要！需要手动初始化DamageStatics中Tag相关的设置
-	DamageStatics().InitializeTagsStuff();
+	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
 
+	// 判断Debuff
+	DetermineDebuff(ExecutionParams, EvaluateParams, Spec);
+
+	// 计算伤害值
 	// 每个伤害型Ability都会有一个Effect，且Effect中会设置一个或多个不同伤害类型的SetByCaller修饰符，其拥有不同伤害类型的Damage.*标签
 	// 通过标签，获取此次受到的不同类型伤害值，并累加，即为此次受到的初始总伤害，然后执行每个属性伤害的抵抗计算
 	float Damage = 0.f;
-	for (const auto& Pair : FAuraGameplayTags::Get().DamageTypes2Resistances)
+	for (const auto& Pair : AuraTags.DamageTypes2Resistances)
 	{
 		const FGameplayTag DamageTypeTag = Pair.Key;
 		const FGameplayTag ResistanceTag = Pair.Value;
-		const FGameplayEffectAttributeCaptureDefinition ResistanceDef = DamageStatics().Tags2CaptureDefs[
-			ResistanceTag];
+		const FGameplayEffectAttributeCaptureDefinition ResistanceDef = DamageStatics().Tags2CaptureDefs[ResistanceTag];
 
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
 
@@ -80,8 +85,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	// 捕获目标格档率，计算此次伤害是否被成功格档
 	float TargetBlockChance = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluateParams,
-	                                                           TargetBlockChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluateParams, TargetBlockChance);
 	TargetBlockChance = FMath::Max(0.f, TargetBlockChance);
 
 	// 如果成功格档，降低50%伤害
@@ -93,22 +97,19 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	TargetArmor = FMath::Max(0.f, TargetArmor);
 
 	float SourceArmorPenetration = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluateParams,
-	                                                           SourceArmorPenetration);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluateParams, SourceArmorPenetration);
 	SourceArmorPenetration = FMath::Max(0.f, SourceArmorPenetration);
 
 	// 配置的伤害计算公式的系数
 	// this is called only on server, so CharClassInfo must be non-none
 	const UCharacterClassInfo* CharClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
-	const FRealCurve* ArmorPenetrationCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(
-		FName("ArmorPenetration"), FString());
+	const FRealCurve* ArmorPenetrationCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(FName("ArmorPenetration"), FString());
 	const float ArmorPenetrationCoefficient = ArmorPenetrationCurve->Eval(SourceCharacterLevel);
 
 	// 计算有效护甲
 	const float EffectiveArmor = TargetArmor * (100 - SourceArmorPenetration * ArmorPenetrationCoefficient) / 100.f;
 
-	const FRealCurve* EffectiveArmorCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(
-		FName("EffectiveArmor"), FString());
+	const FRealCurve* EffectiveArmorCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(FName("EffectiveArmor"), FString());
 	const float EffectiveArmorCoefficient = EffectiveArmorCurve->Eval(TargetCharacterLevel);
 
 	// 计算最终伤害
@@ -116,26 +117,21 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	// 计算暴击伤害
 	float SourceCriticalHitChance = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitChanceDef, EvaluateParams,
-	                                                           SourceCriticalHitChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitChanceDef, EvaluateParams, SourceCriticalHitChance);
 	SourceCriticalHitChance = FMath::Max(0.f, SourceCriticalHitChance);
 
 	float SourceCriticalHitDamage = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitDamageDef, EvaluateParams,
-	                                                           SourceCriticalHitDamage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitDamageDef, EvaluateParams, SourceCriticalHitDamage);
 	SourceCriticalHitDamage = FMath::Max(0.f, SourceCriticalHitDamage);
 
 	float TargetCriticalHitResistance = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitResistanceDef, EvaluateParams,
-	                                                           TargetCriticalHitResistance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitResistanceDef, EvaluateParams, TargetCriticalHitResistance);
 	TargetCriticalHitResistance = FMath::Max(0.f, TargetCriticalHitResistance);
 
-	const FRealCurve* CriticalHitResistanceCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(
-		FName("CriticalHitResistance"), FString());
+	const FRealCurve* CriticalHitResistanceCurve = CharClassInfo->DamageCalculationCoefficients->FindCurve(FName("CriticalHitResistance"), FString());
 	const float CriticalHitResistanceCoefficient = CriticalHitResistanceCurve->Eval(TargetCharacterLevel);
 
-	const float EffectiveCriticalHitChance = SourceCriticalHitChance - TargetCriticalHitResistance *
-		CriticalHitResistanceCoefficient;
+	const float EffectiveCriticalHitChance = SourceCriticalHitChance - TargetCriticalHitResistance * CriticalHitResistanceCoefficient;
 	const bool bCriticalHit = EffectiveCriticalHitChance >= FMath::RandRange(1, 100);
 
 	// 暴击最终伤害=原伤害*2 + 暴击额外伤害
@@ -147,7 +143,40 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	UAuraAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
 
 	// 通过设置目标上的IncomingDamage属性来造成伤害，而不是直接设置Health
-	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(),
-	                                                   EGameplayModOp::Additive, Damage);
+	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
+
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
+}
+
+void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FAggregatorEvaluateParameters& EvaluateParams, const FGameplayEffectSpec& Spec) const
+{
+	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
+
+	// 判断是否触发Debuff
+	for (const auto& Pair : AuraTags.DamageTypes2Debuffs)
+	{
+		const FGameplayTag DamageType = Pair.Key;
+		const FGameplayTag DebuffType = Pair.Value;
+		const float TypeDamage = Spec.GetSetByCallerMagnitude(DamageType, false, -1.f);
+		if (TypeDamage > 0.f)
+		{
+			// 如果有某个类型的伤害，判断是否触发该类型的Debuff
+			float DebuffChance = Spec.GetSetByCallerMagnitude(AuraTags.Debuff_Chance, false, -1.f);
+
+			// Resistance用来减少Debuff概率
+			const FGameplayTag& ResistanceTag = AuraTags.DamageTypes2Resistances[DamageType];
+			float DebuffResistance = 0.f;
+			ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().Tags2CaptureDefs[ResistanceTag], EvaluateParams, DebuffResistance);
+			DebuffResistance = FMath::Max(DebuffResistance, 0.f);
+			// 经过抵抗后的Debuff概率
+			DebuffChance = DebuffChance * (100.f - DebuffResistance) / 100.f;
+
+			const bool bDebuff = FMath::RandRange(0.f, 100.f) < DebuffChance;
+			if (bDebuff)
+			{
+				// 成功触发Debuff
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Debuff Triggered");
+			}
+		}
+	}
 }
