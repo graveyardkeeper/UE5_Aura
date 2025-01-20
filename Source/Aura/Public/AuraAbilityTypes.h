@@ -62,7 +62,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	float GetDebuffDamage() const { return DebuffDamage; }
 	float GetDebuffDuration() const { return DebuffDuration; }
 	float GetDebuffFrequency() const { return DebuffFrequency; }
-	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
+	FGameplayTag GetDamageType() const { return DamageType.IsValid() ? *DamageType : FGameplayTag(); }
 
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
@@ -70,6 +70,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	void SetDebuffDamage(float InDebuffDamage) { DebuffDamage = InDebuffDamage; }
 	void SetDebuffDuration(float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
 	void SetDebuffFrequency(float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
+	void SetDamageType(const FGameplayTag& InDamageType) { DamageType = MakeShared<FGameplayTag>(InDamageType); }
 
 
 	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }

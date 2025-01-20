@@ -111,68 +111,11 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f); // meta attribute需要被消耗，清空
-
-		if (LocalIncomingDamage > 0.f)
-		{
-			// 造成了伤害
-			const float NewHealth = GetHealth() - LocalIncomingDamage;
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-			// 是否致命伤害
-			const bool bFatal = NewHealth <= 0.f;
-			if (!bFatal)
-			{
-				// 非致命伤，尝试激活拥有受击Tag的能力
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
-
-				EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-			}
-			else
-			{
-				// 致命伤，call Die()
-				if (ICombatInterface* Combat = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor))
-				{
-					Combat->Die();
-				}
-				// 发送获得经验事件
-				// ！！！这里很重要，不仅关系到经验的获得，还关系到升级后最大生命和最大魔法的更新
-				// 如果只是单纯等级变更，不会触发最大生命的重新计算（MMC里面只捕获了PrimaryAttribute，而Level不在AttributeSet中），
-				// 关键就在这里，发送经验变更事件后，监听端会同时应用一个SetByCaller的Effect（GE_EventBasedEffect），该Effect中配置了
-				// 会影响最大生命的PrimaryAttribute的更新（虽然Add了一个0，但足以触发MMC的重新计算）
-				// 也就是说，如果MMC没有捕获任何其他属性，那么永远不会重新计算
-				SendXPEvent(EffectProperties);
-			}
-
-			// 显示伤害数字
-			ShowFloatingText(EffectProperties, LocalIncomingDamage,
-			                 UAuraAbilitySystemLibrary::IsBlockedHit(EffectProperties.EffectContextHandle),
-			                 UAuraAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle)
-			);
-		}
+		HandleIncomingDamage(EffectProperties);
 	}
-
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
 	{
-		const float LocalIncomingXP = GetIncomingXP();
-		SetIncomingXP(0.f);
-
-		if (EffectProperties.SourceAvatarActor->Implements<UPlayerInterface>())
-		{
-			const int32 DeltaLevel = IPlayerInterface::Execute_AddToXP(EffectProperties.SourceAvatarActor,
-			                                                           LocalIncomingXP);
-			if (DeltaLevel > 0)
-			{
-				// 升级，补满生命和魔法，不在此处直接设置，因为最大生命在次函数结束后才会更新
-				// 在PostAttributeChange中进行
-				bTopOffHealth = true;
-				bTopOffMana = true;
-
-				IPlayerInterface::Execute_LevelUp(EffectProperties.SourceAvatarActor);
-			}
-		}
+		HandleIncomingXP(EffectProperties);
 	}
 }
 
@@ -191,6 +134,77 @@ void UAuraAttributeSet::SendXPEvent(const FEffectProperties& Props)
 		                                                         FAuraGameplayTags::Get().Attribute_Meta_IncomingXP,
 		                                                         Payload);
 	}
+}
+
+void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f); // meta attribute需要被消耗，清空
+
+	if (LocalIncomingDamage <= 0.f)
+	{
+		return;
+	}
+
+	// 造成了伤害
+	const float NewHealth = GetHealth() - LocalIncomingDamage;
+	SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+	// 是否致命伤害
+	const bool bFatal = NewHealth <= 0.f;
+	if (!bFatal)
+	{
+		// 非致命伤，尝试激活拥有受击Tag的能力
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
+
+		Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+	}
+	else
+	{
+		// 致命伤，call Die()
+		if (ICombatInterface* Combat = Cast<ICombatInterface>(Props.TargetAvatarActor))
+		{
+			Combat->Die();
+		}
+		// 发送获得经验事件
+		// ！！！这里很重要，不仅关系到经验的获得，还关系到升级后最大生命和最大魔法的更新
+		// 如果只是单纯等级变更，不会触发最大生命的重新计算（MMC里面只捕获了PrimaryAttribute，而Level不在AttributeSet中），
+		// 关键就在这里，发送经验变更事件后，监听端会同时应用一个SetByCaller的Effect（GE_EventBasedEffect），该Effect中配置了
+		// 会影响最大生命的PrimaryAttribute的更新（虽然Add了一个0，但足以触发MMC的重新计算）
+		// 也就是说，如果MMC没有捕获任何其他属性，那么永远不会重新计算
+		SendXPEvent(Props);
+	}
+
+	// 显示伤害数字
+	ShowFloatingText(Props, LocalIncomingDamage, UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle), UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle));
+
+	// 处理Debuff
+	HandleDebuff(Props);
+}
+
+void UAuraAttributeSet::HandleIncomingXP(const FEffectProperties& Props)
+{
+	const float LocalIncomingXP = GetIncomingXP();
+	SetIncomingXP(0.f);
+
+	if (Props.SourceAvatarActor->Implements<UPlayerInterface>())
+	{
+		const int32 DeltaLevel = IPlayerInterface::Execute_AddToXP(Props.SourceAvatarActor, LocalIncomingXP);
+		if (DeltaLevel > 0)
+		{
+			// 升级，补满生命和魔法，不在此处直接设置，因为最大生命在次函数结束后才会更新
+			// 在PostAttributeChange中进行
+			bTopOffHealth = true;
+			bTopOffMana = true;
+
+			IPlayerInterface::Execute_LevelUp(Props.SourceAvatarActor);
+		}
+	}
+}
+
+void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
+{
 }
 
 void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlockedHit,

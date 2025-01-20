@@ -278,6 +278,10 @@ private:
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlockedHit, bool bIsCriticalHit) const;
 	void SendXPEvent(const FEffectProperties& Props);
 
+	void HandleIncomingDamage(const FEffectProperties& Props);
+	void HandleIncomingXP(const FEffectProperties& Props);
+	void HandleDebuff(const FEffectProperties& Props);
+
 	// 下一次最大生命/魔法变更时是否补满生命/魔法
 	bool bTopOffHealth = false;
 	bool bTopOffMana = false;
