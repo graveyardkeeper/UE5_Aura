@@ -10,6 +10,9 @@
 
 class UNiagaraSystem;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAscRegisteredDelegate, UAbilitySystemComponent*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathDelegate, AActor*, DeadActor);
+
 USTRUCT(BlueprintType)
 struct FTaggedMontage
 {
@@ -81,4 +84,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void IncreaseMinionCount(int32 Amount);
+
+	virtual FOnAscRegisteredDelegate& GetOnAscRegisteredDelegate() = 0;
+	virtual FOnDeathDelegate& GetOnDeathDelegate() = 0;
 };

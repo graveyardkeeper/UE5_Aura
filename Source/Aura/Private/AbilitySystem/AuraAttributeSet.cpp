@@ -11,6 +11,7 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "GameFramework/Character.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Interaction/CombatInterface.h"
 #include "Interaction/PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
@@ -232,8 +233,11 @@ void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
 	Effect->Period = DebuffFrequency;
 
-	// TODO: deprecated
-	Effect->InheritableOwnedTagsContainer.AddTag(AuraTags.DamageTypes2Debuffs[DamageType]); // 赋予Debuff标签到目标身上，如Debuff.Fire
+	// AddGrantTags 新写法 相当于：Effect->InheritableOwnedTagsContainer.AddTag(AuraTags.DamageTypes2Debuffs[DamageType]);
+	UTargetTagsGameplayEffectComponent& TargetTagsComponent = Effect->AddComponent<UTargetTagsGameplayEffectComponent>();
+	FInheritedTagContainer TagContainer = TargetTagsComponent.GetConfiguredTargetTagChanges();
+	TagContainer.AddTag(AuraTags.DamageTypes2Debuffs[DamageType]); // 赋予Debuff标签到目标身上，如Debuff.Fire
+	TargetTagsComponent.SetAndApplyTargetTagChanges(TagContainer);
 
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
 	Effect->StackLimitCount = 1;

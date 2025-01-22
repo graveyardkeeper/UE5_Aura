@@ -120,6 +120,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
+	OnAscRegisteredDelegate.Broadcast(AbilitySystemComponent);
 
 	/* Init HUD here because we need all four available above, only this place we can get them. */
 	if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(GetController()))

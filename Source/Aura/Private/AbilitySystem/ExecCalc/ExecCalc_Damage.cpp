@@ -171,7 +171,7 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
 			// 经过抵抗后的Debuff概率
 			DebuffChance = DebuffChance * (100.f - DebuffResistance) / 100.f;
 
-			const bool bDebuff = FMath::RandRange(0.f, 100.f) < DebuffChance;
+			const bool bDebuff = FMath::RandRange(0.f, 100.f) <= DebuffChance;
 			if (bDebuff)
 			{
 				// 成功触发Debuff，设置相关参数到SpecContextHandle，供AttributeSet中读取

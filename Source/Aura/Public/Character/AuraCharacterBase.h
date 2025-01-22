@@ -8,6 +8,7 @@
 #include "Interaction/CombatInterface.h"
 #include "AuraCharacterBase.generated.h"
 
+class UDebuffNiagaraComponent;
 class UNiagaraSystem;
 class UGameplayAbility;
 class UGameplayEffect;
@@ -38,6 +39,8 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void IncreaseMinionCount_Implementation(int32 Amount) override;
+	virtual FOnAscRegisteredDelegate& GetOnAscRegisteredDelegate() override;
+	virtual FOnDeathDelegate& GetOnDeathDelegate() override;
 
 	/** 多播，角色死亡时在所有客户端上的表现 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -82,6 +85,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	FOnAscRegisteredDelegate OnAscRegisteredDelegate;
+	FOnDeathDelegate OnDeathDelegate;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes; // effect to initial vital attributes.
 
@@ -114,6 +120,10 @@ protected:
 
 	/** Minions */
 	int32 MinionCount = 0;
+
+	/** Debuff 特效 */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
