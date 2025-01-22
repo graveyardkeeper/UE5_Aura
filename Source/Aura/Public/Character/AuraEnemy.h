@@ -36,7 +36,7 @@ public:
 	 * Combat interface.
 	 */
 	virtual int32 GetCharacterLevel_Implementation() const override;
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
 	int32 Level = 1;

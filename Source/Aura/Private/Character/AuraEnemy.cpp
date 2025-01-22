@@ -152,7 +152,7 @@ int32 AAuraEnemy::GetCharacterLevel_Implementation() const
 	return Level;
 }
 
-void AAuraEnemy::Die()
+void AAuraEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(LifeSpan);
 	if (AuraAIController)
@@ -160,7 +160,7 @@ void AAuraEnemy::Die()
 		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	}
 
-	Super::Die(); // parent的方法最后调用，因为会multicast到客户端，需要确保其他事情都处理完成
+	Super::Die(DeathImpulse); // parent的方法最后调用，因为会multicast到客户端，需要确保其他事情都处理完成
 }
 
 void AAuraEnemy::OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
