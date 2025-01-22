@@ -11,9 +11,18 @@ struct FDamageEffectParams
 {
 	GENERATED_BODY()
 
-	void SetTargetActor(AActor* TargetActor)
+	void ApplyDamage() const;
+
+	FDamageEffectParams& SetTargetActor(AActor* TargetActor)
 	{
 		TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+		return *this;
+	}
+
+	FDamageEffectParams& SetDeathImpulse(const FVector& InDeathImpulse)
+	{
+		DeathImpulse = InDeathImpulse;
+		return *this;
 	}
 
 	UPROPERTY()
@@ -48,6 +57,12 @@ struct FDamageEffectParams
 
 	UPROPERTY()
 	float DebuffDuration = 0.f;
+
+	UPROPERTY()
+	float DeathImpulseMagnitude;
+
+	UPROPERTY()
+	FVector DeathImpulse;
 };
 
 
@@ -63,6 +78,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	float GetDebuffDuration() const { return DebuffDuration; }
 	float GetDebuffFrequency() const { return DebuffFrequency; }
 	FGameplayTag GetDamageType() const { return DamageType.IsValid() ? *DamageType : FGameplayTag(); }
+	FVector GetDeathImpulse() const { return DeathImpulse; }
 
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
@@ -71,6 +87,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	void SetDebuffDuration(float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
 	void SetDebuffFrequency(float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
 	void SetDamageType(const FGameplayTag& InDamageType) { DamageType = MakeShared<FGameplayTag>(InDamageType); }
+	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
 
 
 	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
@@ -110,6 +127,9 @@ protected:
 	float DebuffFrequency = 0.f;
 
 	TSharedPtr<FGameplayTag> DamageType;
+
+	UPROPERTY()
+	FVector DeathImpulse = FVector::ZeroVector;
 };
 
 template <>

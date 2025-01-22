@@ -52,4 +52,7 @@ protected:
 	/** Debuff持续时间 */
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
 	float DebuffDuration = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float DeathImpulseMagnitude = 60.f;
 };

@@ -181,6 +181,9 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 		// 会影响最大生命的PrimaryAttribute的更新（虽然Add了一个0，但足以触发MMC的重新计算）
 		// 也就是说，如果MMC没有捕获任何其他属性，那么永远不会重新计算
 		SendXPEvent(Props);
+
+		const FVector DeathImpulse = UAuraAbilitySystemLibrary::GetDeathImpulse(Props.EffectContextHandle);
+		// TODO 使用DeathImpulse
 	}
 
 	// 显示伤害数字

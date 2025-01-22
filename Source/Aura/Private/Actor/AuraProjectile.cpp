@@ -91,8 +91,8 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	if (HasAuthority())
 	{
 		// apply damage effect only on server
-		DamageEffectParams.SetTargetActor(OtherActor);
-		UAuraAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
+		const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
+		DamageEffectParams.SetTargetActor(OtherActor).SetDeathImpulse(DeathImpulse).ApplyDamage();
 		Destroy();
 	}
 	else
