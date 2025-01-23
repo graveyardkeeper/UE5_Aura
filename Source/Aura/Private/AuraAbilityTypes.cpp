@@ -1,5 +1,6 @@
 ﻿#include "AuraAbilityTypes.h"
 
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
 void FDamageEffectParams::ApplyDamage() const
@@ -8,6 +9,24 @@ void FDamageEffectParams::ApplyDamage() const
 	{
 		UAuraAbilitySystemLibrary::ApplyDamageEffect(*this);
 	}
+}
+
+FDamageEffectParams& FDamageEffectParams::SetTargetActor(AActor* TargetActor)
+{
+	TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	return *this;
+}
+
+FDamageEffectParams& FDamageEffectParams::SetDeathImpulse(const FVector& InDeathImpulse)
+{
+	DeathImpulse = InDeathImpulse;
+	return *this;
+}
+
+FDamageEffectParams& FDamageEffectParams::SetKnockbackForce(const FVector& InKnockbackForce)
+{
+	KnockbackForce = InKnockbackForce;
+	return *this;
 }
 
 bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
@@ -75,9 +94,13 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		{
 			RepBits |= 1 << 14;
 		}
+		if (!KnockbackForce.IsZero())
+		{
+			RepBits |= 1 << 15;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 14);
+	Ar.SerializeBits(&RepBits, 15);
 
 	if (RepBits & (1 << 0))
 	{
@@ -157,6 +180,10 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	if (RepBits & (1 << 14))
 	{
 		DeathImpulse.NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 15))
+	{
+		KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);
 	}
 
 	if (Ar.IsLoading())

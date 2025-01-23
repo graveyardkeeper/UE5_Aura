@@ -54,5 +54,11 @@ protected:
 	float DebuffDuration = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	float DeathImpulseMagnitude = 60.f;
+	float DeathImpulseMagnitude = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float KnockbackChance = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float KnockbackForceMagnitude = 500.f;
 };

@@ -13,17 +13,11 @@ struct FDamageEffectParams
 
 	void ApplyDamage() const;
 
-	FDamageEffectParams& SetTargetActor(AActor* TargetActor)
-	{
-		TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-		return *this;
-	}
+	FDamageEffectParams& SetTargetActor(AActor* TargetActor);
 
-	FDamageEffectParams& SetDeathImpulse(const FVector& InDeathImpulse)
-	{
-		DeathImpulse = InDeathImpulse;
-		return *this;
-	}
+	FDamageEffectParams& SetDeathImpulse(const FVector& InDeathImpulse);
+
+	FDamageEffectParams& SetKnockbackForce(const FVector& InKnockbackForce);
 
 	UPROPERTY()
 	TObjectPtr<UObject> WorldContextObject;
@@ -59,10 +53,19 @@ struct FDamageEffectParams
 	float DebuffDuration = 0.f;
 
 	UPROPERTY()
-	float DeathImpulseMagnitude;
+	float DeathImpulseMagnitude = 0.f;
 
 	UPROPERTY()
-	FVector DeathImpulse;
+	FVector DeathImpulse = FVector::ZeroVector;
+
+	UPROPERTY()
+	float KnockbackChance = 0.f;
+
+	UPROPERTY()
+	float KnockbackForceMagnitude = 0.f;
+
+	UPROPERTY()
+	FVector KnockbackForce = FVector::ZeroVector;
 };
 
 
@@ -79,6 +82,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	float GetDebuffFrequency() const { return DebuffFrequency; }
 	FGameplayTag GetDamageType() const { return DamageType.IsValid() ? *DamageType : FGameplayTag(); }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
+	FVector GetKnockbackForce() const { return KnockbackForce; }
 
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
@@ -88,6 +92,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	void SetDebuffFrequency(float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
 	void SetDamageType(const FGameplayTag& InDamageType) { DamageType = MakeShared<FGameplayTag>(InDamageType); }
 	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
+	void SetKnockbackForce(const FVector& InKnockbackForce) { KnockbackForce = InKnockbackForce; };
 
 
 	virtual UScriptStruct* GetScriptStruct() const override { return StaticStruct(); }
@@ -130,6 +135,9 @@ protected:
 
 	UPROPERTY()
 	FVector DeathImpulse = FVector::ZeroVector;
+
+	UPROPERTY()
+	FVector KnockbackForce = FVector::ZeroVector;
 };
 
 template <>

@@ -28,6 +28,18 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefault
 	Params.DebuffFrequency = DebuffFrequency;
 	Params.DebuffDuration = DebuffDuration;
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
+	Params.KnockbackChance = KnockbackChance;
+	Params.KnockbackForceMagnitude = KnockbackForceMagnitude;
+	if (IsValid(TargetActor))
+	{
+		if (const bool bKnockback = FMath::RandRange(0.f, 100.f) <= KnockbackChance)
+		{
+			FRotator Direction = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
+			Direction.Pitch = 30.0f;
+			Params.KnockbackForce = Direction.Vector() * KnockbackForceMagnitude;
+			Params.DeathImpulse = Direction.Vector() * DeathImpulseMagnitude;
+		}
+	}
 
 	return Params;
 }

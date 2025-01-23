@@ -3,7 +3,6 @@
 
 #include "Actor/AuraProjectile.h"
 
-#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
@@ -92,6 +91,12 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	{
 		// apply damage effect only on server
 		const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
+		if (const bool bKnockback = FMath::RandRange(0.f, 100.f) <= DamageEffectParams.KnockbackChance)
+		{
+			FRotator Rotate = GetActorRotation();
+			Rotate.Pitch = 30.f;
+			DamageEffectParams.SetKnockbackForce(Rotate.Vector() * DamageEffectParams.KnockbackForceMagnitude);
+		}
 		DamageEffectParams.SetTargetActor(OtherActor).SetDeathImpulse(DeathImpulse).ApplyDamage();
 		Destroy();
 	}

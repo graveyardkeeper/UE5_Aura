@@ -164,8 +164,15 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 		// 非致命伤，尝试激活拥有受击Tag的能力
 		FGameplayTagContainer TagContainer;
 		TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
-
 		Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+
+		if (const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle); !KnockbackForce.IsZero())
+		{
+			// 击退效果
+			// TODO 目前有Bug，只会往Z轴移动，XY平面不会移动，怀疑是地面摩擦力原因，但不解决
+			// DrawDebugLine(GetWorld(), Props.TargetCharacter->GetActorLocation(), Props.TargetCharacter->GetActorLocation() + KnockbackForce, FColor::Green, true);
+			Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
+		}
 	}
 	else
 	{
