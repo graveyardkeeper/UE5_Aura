@@ -1,0 +1,2 @@
+- `AttributeSet`中用于击飞角色的`LaunchCharacter`调用，对Enemy在XY平面上不生效，对Aura完全正常，可能跟地面摩擦力和`CharacterMovementComponent`有关，暂未定位
+- `AuraFireBolt`暂未实现自动追踪Enemy，容易Miss，影响体验
