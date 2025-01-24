@@ -6,6 +6,7 @@
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "Actor/AuraProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 FString UAuraFireBolt::GetDescription(int32 Level)
 {
@@ -70,8 +71,7 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& TargetLocation, const FGamep
 	}
 
 	const FVector ForwardVector = Rotation.Vector();
-	//const int32 NumProjectiles = FMath::Min(GetAbilityLevel(), MaxProjectilesNum);
-	const int32 NumProjectiles = MaxProjectilesNum;
+	const int32 NumProjectiles = FMath::Min(MaxProjectilesNum, GetAbilityLevel());
 	const TArray<FRotator> ProjectileDirections = UAuraAbilitySystemLibrary::EvenlySpacedRotators(ForwardVector, FVector::UpVector, ProjectileSpread, NumProjectiles);
 	for (const FRotator& Direction : ProjectileDirections)
 	{
@@ -87,6 +87,25 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& TargetLocation, const FGamep
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 		Projectile->DamageEffectParams = MakeDamageParamsFromClassDefaults(); // 此时还不知道TargetActor，所以不设置
+
+		// 追踪目标
+		USceneComponent* HomingTargetSceneComp = nullptr;
+		if (IsValid(HomingTarget) && HomingTarget->Implements<UCombatInterface>())
+		{
+			HomingTargetSceneComp = HomingTarget->GetRootComponent();
+		}
+		else
+		{
+			// 目标不是敌人，如地面等，生成一个SceneComponent
+			// ProjectileMovement中的HomingTargetComponent是个WeakPtr，所以需要有一个类进行维护这个SceneComponent的引用
+			HomingTargetSceneComp = NewObject<USceneComponent>(USceneComponent::StaticClass());
+			HomingTargetSceneComp->SetWorldLocation(TargetLocation);
+		}
+		Projectile->HomingTargetSceneComponent = HomingTargetSceneComp;
+		Projectile->ProjectileMovement->HomingTargetComponent = HomingTargetSceneComp;
+		Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::RandRange(HomingAccelerationMin, HomingAccelerationMax);
+		Projectile->ProjectileMovement->bIsHomingProjectile = bIsHomingProjectile;
+
 		Projectile->FinishSpawning(SpawnTransform);
 	}
 }

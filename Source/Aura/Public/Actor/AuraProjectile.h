@@ -25,10 +25,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta=(ExposeOnSpawn=true))
 	FDamageEffectParams DamageEffectParams;
 
+	UPROPERTY(BlueprintReadWrite, Category="Projectile")
+	TObjectPtr<USceneComponent> HomingTargetSceneComponent;
+
 protected:
 	virtual void BeginPlay() override;
-	void OnHit();
 	virtual void Destroyed() override;
+
+	void OnHit();
 
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
