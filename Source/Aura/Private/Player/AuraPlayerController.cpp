@@ -3,6 +3,8 @@
 
 #include "Player/AuraPlayerController.h"
 
+#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
+
 #include "Aura/Aura.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
@@ -139,6 +141,10 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 	{
 		bTargeting = CurrTracedActor != nullptr;
 		bAutoRunning = false;
+	}
+	if (GetASC())
+	{
+		GetASC()->AbilityInputTagPressed(InputTag);
 	}
 }
 

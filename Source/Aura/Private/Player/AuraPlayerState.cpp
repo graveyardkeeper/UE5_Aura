@@ -99,8 +99,8 @@ int32 AAuraPlayerState::SetPlayerXP(int32 InXP)
 			AttributePointsAward += LevelUpInfo->LevelUpInformation[i].AttributePointAward;
 			SpellPointsAward += LevelUpInfo->LevelUpInformation[i].SpellPointAward;
 		}
-		SetPlayerAttributePoints(AttributePointsAward);
-		SetPlayerSpellPoints(SpellPointsAward);
+		AddToPlayerAttributePoints(AttributePointsAward);
+		AddToPlayerSpellPoints(SpellPointsAward);
 	}
 
 	OnPlayerXPChangedDelegate.Broadcast(XP);

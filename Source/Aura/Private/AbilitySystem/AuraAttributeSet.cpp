@@ -2,9 +2,6 @@
 
 
 #include "AbilitySystem/AuraAttributeSet.h"
-
-#include <sapi.h>
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraAbilityTypes.h"
 #include "AuraGameplayTags.h"
