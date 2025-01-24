@@ -31,6 +31,7 @@ public:
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& SocketTag) override;
+	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	virtual void Die(const FVector& DeathImpulse) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
