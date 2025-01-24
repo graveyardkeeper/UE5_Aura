@@ -1,1 +1,1 @@
-# A Top-Down ARPG made by Ureal Engine5 following a tutorial.
+A Top-Down ARPG game built by `Unreal Engine 5` using `GameplayAbilitySystem`.
