@@ -164,8 +164,7 @@ FGameplayTagContainer UAuraAbilitySystemLibrary::GetEffectSetByCallerTags(const 
 	FGameplayTagContainer Tags;
 	for (const FGameplayModifierInfo& Modifier : SpecHandle.Data->Def->Modifiers)
 	{
-		if (Modifier.ModifierMagnitude.GetMagnitudeCalculationType() ==
-			EGameplayEffectMagnitudeCalculation::SetByCaller)
+		if (Modifier.ModifierMagnitude.GetMagnitudeCalculationType() == EGameplayEffectMagnitudeCalculation::SetByCaller)
 		{
 			Tags.AddTag(Modifier.ModifierMagnitude.GetSetByCallerFloat().DataTag);
 		}

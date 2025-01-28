@@ -9,6 +9,10 @@
 
 void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
+	if (!IsValid(TargetActor))
+	{
+		return;
+	}
 	UAuraAbilitySystemLibrary::ApplyDamageEffect(MakeDamageParamsFromClassDefaults(TargetActor));
 }
 
