@@ -13,7 +13,6 @@
 #include "Player/AuraPlayerState.h"
 #include "UI/HUD/AuraHUD.h"
 #include "UI/WidgetController/AuraWidgetController.h"
-#include "UObject/FastReferenceCollector.h"
 
 bool UAuraAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, AAuraHUD*& OutAuraHUD,
                                                            FWidgetControllerParams& OutParams)
@@ -354,6 +353,32 @@ void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 				}
 			}
 		}
+	}
+}
+
+void UAuraAbilitySystemLibrary::GetClosestTargets(const TArray<AActor*>& Actors, const FVector& Origin, int32 MaxTargets, TArray<AActor*>& OutClosestTargets)
+{
+	if (Actors.Num() <= MaxTargets)
+	{
+		OutClosestTargets = Actors;
+		return;
+	}
+	TArray<AActor*> CandidateActors = Actors;;
+	while (OutClosestTargets.Num() < MaxTargets)
+	{
+		AActor* ClosestOne = nullptr;
+		double ClosestDistance = TNumericLimits<double>::Max();
+		for (AActor* Actor : CandidateActors)
+		{
+			const double Distance = (Actor->GetActorLocation() - Origin).Length();
+			if (Distance < ClosestDistance)
+			{
+				ClosestDistance = Distance;
+				ClosestOne = Actor;
+			}
+		}
+		OutClosestTargets.AddUnique(ClosestOne);
+		CandidateActors.Remove(ClosestOne);
 	}
 }
 
