@@ -52,10 +52,10 @@ void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 	}
 }
 
-void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
+void UAuraBeamSpell::GetAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
 {
 	// 如果首个目标是敌人（非地面），获取距离该敌人最近的N个其他敌人，用来连锁光束
-	if (!IsValid(MouseHitActor))
+	if (!MouseHitActor->Implements<UCombatInterface>())
 	{
 		return;
 	}
