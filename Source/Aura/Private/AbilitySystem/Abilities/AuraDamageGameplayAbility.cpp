@@ -7,13 +7,18 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 
-void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
+void UAuraDamageGameplayAbility::CauseDamage(AActor* TargetActor, bool bIgnoreDebuff)
 {
 	if (!IsValid(TargetActor))
 	{
 		return;
 	}
-	UAuraAbilitySystemLibrary::ApplyDamageEffect(MakeDamageParamsFromClassDefaults(TargetActor));
+	FDamageEffectParams Params = MakeDamageParamsFromClassDefaults(TargetActor);
+	if (bIgnoreDebuff)
+	{
+		Params.DebuffChance = 0.f;
+	}
+	UAuraAbilitySystemLibrary::ApplyDamageEffect(Params);
 }
 
 FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefaults(AActor* TargetActor) const

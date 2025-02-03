@@ -23,6 +23,9 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 public:
 	AAuraCharacterBase();
 
+	/** 类中有Replicated的变量时，必须重写这个 */
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
@@ -118,6 +121,18 @@ protected:
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
 
 	bool bDead = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
+	float BaseWalkSpeed = 600.f;
+	
+	/** 是否眩晕 */
+	UPROPERTY(ReplicatedUsing=OnRep_Stunned, BlueprintReadOnly, Category="Combat")
+	bool bIsStunned = false;
+
+	UFUNCTION()
+	virtual void OnRep_Stunned();
+
+	virtual void OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	/** Minions */
 	int32 MinionCount = 0;

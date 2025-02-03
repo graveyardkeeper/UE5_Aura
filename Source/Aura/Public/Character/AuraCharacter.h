@@ -47,4 +47,6 @@ protected:
 	void MulticastLevelUpEffect();
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowLevelUpEffect();
+
+	virtual void OnRep_Stunned() override;
 };

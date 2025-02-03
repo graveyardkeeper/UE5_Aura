@@ -47,26 +47,24 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnMaxHealthChanged;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
-	float BaseWalkSpeed = 250.f;
-
 	UPROPERTY(BlueprintReadOnly, Category="Combat")
 	float LifeSpan = 3.f;
 
-	UPROPERTY(BlueprintReadOnly, Category="Combat")
-	bool bHitReacting = false;
-
 	UPROPERTY(BlueprintReadWrite, Category="Combat")
 	TObjectPtr<AActor> CombatTarget;
-
-	void OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
-
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void InitAbilityActorInfo() override;
 
 	virtual void InitializeDefaultAttributes() const override;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	bool bHitReacting = false;
+
+	void OnHitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	virtual void OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bHighlighted = false;

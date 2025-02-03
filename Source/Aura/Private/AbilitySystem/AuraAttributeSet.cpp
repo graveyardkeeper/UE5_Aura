@@ -237,10 +237,20 @@ void UAuraAttributeSet::HandleDebuff(const FEffectProperties& Props)
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
 	Effect->Period = DebuffFrequency;
 
+	const FGameplayTag DebuffTag = AuraTags.DamageTypes2Debuffs[DamageType];
+
 	// AddGrantTags 新写法 相当于：Effect->InheritableOwnedTagsContainer.AddTag(AuraTags.DamageTypes2Debuffs[DamageType]);
 	UTargetTagsGameplayEffectComponent& TargetTagsComponent = Effect->AddComponent<UTargetTagsGameplayEffectComponent>();
 	FInheritedTagContainer TagContainer = TargetTagsComponent.GetConfiguredTargetTagChanges();
-	TagContainer.AddTag(AuraTags.DamageTypes2Debuffs[DamageType]); // 赋予Debuff标签到目标身上，如Debuff.Fire
+	TagContainer.AddTag(DebuffTag); // 赋予Debuff标签到目标身上，如Debuff.Fire
+	// 同时，如果是眩晕Debuff，阻止角色输入
+	if (DebuffTag.MatchesTagExact(AuraTags.Debuff_Stun))
+	{
+		TagContainer.AddTag(AuraTags.Player_Block_CursorTrace);
+		TagContainer.AddTag(AuraTags.Player_Block_InputHeld);
+		TagContainer.AddTag(AuraTags.Player_Block_InputPressed);
+		TagContainer.AddTag(AuraTags.Player_Block_InputReleased);
+	}
 	TargetTagsComponent.SetAndApplyTargetTagChanges(TagContainer);
 
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
