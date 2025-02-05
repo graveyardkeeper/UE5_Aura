@@ -12,6 +12,7 @@ DECLARE_DELEGATE_OneParam(FForEachAbilityDelegate, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAbilityStatusChangedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Status Tag */, int32 /*Ability Level*/);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnSpellEquippedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Input Tag */, const FGameplayTag& /*Prev Input Tag*/);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPassiveAbilityDeactivatedDelegate, const FGameplayTag& /* Passive Ability Tag*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnPassiveEffectActivatedDelegate, const FGameplayTag& /* Passive Ability Tag*/, bool /*bActivate*/);
 
 /**
  * 
@@ -27,6 +28,7 @@ public:
 	FOnAbilityStatusChangedDelegate OnAbilityStatusChangedDelegate;
 	FOnSpellEquippedDelegate OnSpellEquippedDelegate;
 	FOnPassiveAbilityDeactivatedDelegate OnPassiveAbilityDeactivatedDelegate;
+	FOnPassiveEffectActivatedDelegate OnPassiveEffectActivatedDelegate;
 
 	bool bStartupAbilitiesGiven = false;
 
@@ -70,6 +72,9 @@ public:
 	void ClientEquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
 
 	void UpdateAbilityStatuses(int32 PlayerLevel);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastActivatePassiveEffect(const FGameplayTag& AbilityTag, bool bActivate);
 
 	bool GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription);
 

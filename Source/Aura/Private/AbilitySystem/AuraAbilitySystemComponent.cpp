@@ -311,6 +311,7 @@ void UAuraAbilitySystemComponent::ServerEquipSpell_Implementation(const FGamepla
 		{
 			// 是顶替掉的是被动技能，取消激活
 			OnPassiveAbilityDeactivatedDelegate.Broadcast(AbilityTagWithSlot);
+			MulticastActivatePassiveEffect(AbilityTagWithSlot, false);
 		}
 		ClearAbilityInputTag(SpecWithSlot);
 
@@ -325,6 +326,7 @@ void UAuraAbilitySystemComponent::ServerEquipSpell_Implementation(const FGamepla
 		if (AbilityType == AuraTags.Ability_Type_Passive)
 		{
 			TryActivateAbility(Spec->Handle);
+			MulticastActivatePassiveEffect(AbilityTag, true);
 		}
 		// Unlocked状态，更新状态为Equipped
 		Spec->DynamicAbilityTags.RemoveTag(AuraTags.Ability_Status_Unlocked);
@@ -366,6 +368,11 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 PlayerLevel)
 			ClientUpdateAbilityStatus(Info.AbilityTag, FAuraGameplayTags::Get().Ability_Status_Eligible, Spec.Level);
 		}
 	}
+}
+
+void UAuraAbilitySystemComponent::MulticastActivatePassiveEffect_Implementation(const FGameplayTag& AbilityTag, bool bActivate)
+{
+	OnPassiveEffectActivatedDelegate.Broadcast(AbilityTag, bActivate);
 }
 
 bool UAuraAbilitySystemComponent::GetDescriptionsByAbilityTag(const FGameplayTag& AbilityTag, FString& OutDescription, FString& OutNextLevelDescription)
