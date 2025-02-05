@@ -208,6 +208,11 @@ void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& Attribute
 	}
 }
 
+void UAuraAbilitySystemComponent::ClientSpellPointSpent_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
+{
+	OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag, AbilityLevel);
+}
+
 void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
 {
 	if (!GetAvatarActor()->Implements<UPlayerInterface>())
@@ -237,8 +242,7 @@ void UAuraAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGa
 			++Spec->Level;
 		}
 
-		OnAbilityStatusChangedDelegate.Broadcast(AbilityTag, StatusTag, Spec->Level);
-
+		ClientSpellPointSpent(AbilityTag, StatusTag, Spec->Level);
 		MarkAbilitySpecDirty(*Spec);
 	}
 }

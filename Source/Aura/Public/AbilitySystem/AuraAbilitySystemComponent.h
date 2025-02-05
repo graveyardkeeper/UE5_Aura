@@ -11,6 +11,7 @@ DECLARE_MULTICAST_DELEGATE(FOnAbilityGivenDelegate);
 DECLARE_DELEGATE_OneParam(FForEachAbilityDelegate, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAbilityStatusChangedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Status Tag */, int32 /*Ability Level*/);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnSpellEquippedDelegate, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /* Input Tag */, const FGameplayTag& /*Prev Input Tag*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPassiveAbilityDeactivatedDelegate, const FGameplayTag& /* Passive Ability Tag*/);
 
 /**
  * 
@@ -25,6 +26,7 @@ public:
 	FOnAbilityGivenDelegate OnAbilityGivenDelegate;
 	FOnAbilityStatusChangedDelegate OnAbilityStatusChangedDelegate;
 	FOnSpellEquippedDelegate OnSpellEquippedDelegate;
+	FOnPassiveAbilityDeactivatedDelegate OnPassiveAbilityDeactivatedDelegate;
 
 	bool bStartupAbilitiesGiven = false;
 
@@ -54,6 +56,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSpellPointSpent(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipSpell(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);

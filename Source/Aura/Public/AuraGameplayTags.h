@@ -106,6 +106,10 @@ public:
 	FGameplayTag Ability_Type_Passive;
 	FGameplayTag Ability_Type_None;
 
+	FGameplayTag Ability_Passive_HaloOfProtection;
+	FGameplayTag Ability_Passive_LifeSiphon;
+	FGameplayTag Ability_Passive_ManaSiphon;
+
 
 	/**
 	 * Ability Tags

@@ -253,6 +253,19 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FString("Ability None Type")
 	);
 
+	Ability_Passive_HaloOfProtection = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Passive.HaloOfProtection"),
+		FString("Passive Ability Halo Of Protection")
+	);
+	Ability_Passive_LifeSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Passive.LifeSiphon"),
+		FString("Passive Ability Life Siphon")
+	);
+	Ability_Passive_ManaSiphon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Passive.ManaSiphon"),
+		FString("Passive Ability Mana Siphon")
+	);
+
 
 	/** Ability Tags */
 	Cooldown_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
