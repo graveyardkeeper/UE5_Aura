@@ -45,6 +45,8 @@ public:
 	virtual void IncreaseMinionCount_Implementation(int32 Amount) override;
 	virtual FOnAscRegisteredDelegate& GetOnAscRegisteredDelegate() override;
 	virtual FOnDeathDelegate& GetOnDeathDelegate() override;
+	virtual void SetIsBeingShocked_Implementation(bool bInIsBeingShocked) override;
+	virtual bool GetIsBeingShocked_Implementation() override;
 
 	/** 多播，角色死亡时在所有客户端上的表现 */
 	UFUNCTION(NetMulticast, Reliable)
@@ -121,16 +123,27 @@ protected:
 	void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
 
 	bool bDead = false;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
 	float BaseWalkSpeed = 600.f;
-	
+
 	/** 是否眩晕 */
 	UPROPERTY(ReplicatedUsing=OnRep_Stunned, BlueprintReadOnly, Category="Combat")
 	bool bIsStunned = false;
 
+	/** 是否灼烧 */
+	UPROPERTY(ReplicatedUsing=OnRep_Burned, BlueprintReadOnly, Category="Combat")
+	bool bIsBurned = false;
+
+	/** 是否正在被电击 */
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Combat")
+	bool bIsBeingShocked = false;
+
 	UFUNCTION()
 	virtual void OnRep_Stunned();
+
+	UFUNCTION()
+	virtual void OnRep_Burned();
 
 	virtual void OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
@@ -140,7 +153,7 @@ protected:
 	/** Debuff 特效 */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
-	
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent;
 

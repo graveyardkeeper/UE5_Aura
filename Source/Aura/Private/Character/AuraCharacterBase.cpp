@@ -30,7 +30,7 @@ AAuraCharacterBase::AAuraCharacterBase()
 	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
-	
+
 	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
 	StunDebuffComponent->SetupAttachment(GetRootComponent());
 	StunDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
@@ -41,6 +41,8 @@ void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsBeingShocked);
 }
 
 UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
@@ -118,6 +120,16 @@ FOnDeathDelegate& AAuraCharacterBase::GetOnDeathDelegate()
 	return OnDeathDelegate;
 }
 
+void AAuraCharacterBase::SetIsBeingShocked_Implementation(bool bInIsBeingShocked)
+{
+	bIsBeingShocked = bInIsBeingShocked;
+}
+
+bool AAuraCharacterBase::GetIsBeingShocked_Implementation()
+{
+	return bIsBeingShocked;
+}
+
 void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	// 角色死亡，开启模拟物理，布娃娃效果
@@ -148,7 +160,12 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 
 void AAuraCharacterBase::OnRep_Stunned()
 {
-	// Nothing for now.
+	// nothing.
+}
+
+void AAuraCharacterBase::OnRep_Burned()
+{
+	// nothing.
 }
 
 void AAuraCharacterBase::OnStunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

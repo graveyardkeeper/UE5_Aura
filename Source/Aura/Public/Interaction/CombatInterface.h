@@ -93,4 +93,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetInShockLoop(bool bInLoop);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetIsBeingShocked(bool bInIsBeingShocked);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetIsBeingShocked();
 };

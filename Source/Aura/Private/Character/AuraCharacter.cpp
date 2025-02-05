@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/AuraPlayerController.h"
@@ -131,7 +132,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 			HUD->InitOverlay(PC, PS, AbilitySystemComponent, AttributeSet);
 		}
 	}
-	
+
 	// 一些广播和回调绑定
 	OnAscRegisteredDelegate.Broadcast(AbilitySystemComponent);
 	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraCharacter::OnStunTagChanged);
@@ -146,17 +147,31 @@ void AAuraCharacter::OnRep_Stunned()
 
 	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
 	FGameplayTagContainer BlockedTags;
-	BlockedTags.AddTag(AuraTags.Player_Block_CursorTrace);	
-	BlockedTags.AddTag(AuraTags.Player_Block_InputHeld);	
-	BlockedTags.AddTag(AuraTags.Player_Block_InputPressed);	
+	BlockedTags.AddTag(AuraTags.Player_Block_CursorTrace);
+	BlockedTags.AddTag(AuraTags.Player_Block_InputHeld);
+	BlockedTags.AddTag(AuraTags.Player_Block_InputPressed);
 	BlockedTags.AddTag(AuraTags.Player_Block_InputReleased);
 
 	if (bIsStunned)
 	{
 		AuraASC->AddLooseGameplayTags(BlockedTags);
+		StunDebuffComponent->Activate();
 	}
 	else
 	{
-		AuraASC->RemoveLooseGameplayTags(BlockedTags);	
+		AuraASC->RemoveLooseGameplayTags(BlockedTags);
+		StunDebuffComponent->Deactivate();
+	}
+}
+
+void AAuraCharacter::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		BurnDebuffComponent->Deactivate();
 	}
 }

@@ -159,9 +159,12 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 	if (!bFatal)
 	{
 		// 非致命伤，尝试激活拥有受击Tag的能力
-		FGameplayTagContainer TagContainer;
-		TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
-		Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+		if (Props.TargetAvatarActor->Implements<UCombatInterface>() && !ICombatInterface::Execute_GetIsBeingShocked(Props.TargetAvatarActor))
+		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(FAuraGameplayTags::Get().Effect_HitReact);
+			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+		}
 
 		if (const FVector KnockbackForce = UAuraAbilitySystemLibrary::GetKnockbackForce(Props.EffectContextHandle); !KnockbackForce.IsZero())
 		{
