@@ -42,12 +42,15 @@ public:
 	void ForEachAbility(const FForEachAbilityDelegate& Delegate);
 
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayAbilitySpec* GetSpecFromInputTag(const FGameplayTag& InputTag);
 
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetAbilityStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	FGameplayTag GetInputTagFromAbilityTag(const FGameplayTag& AbilityTag);
 	FGameplayTag GetAbilityStatusFromAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetAbilityTypeFromSpec(const FGameplayAbilitySpec& AbilitySpec) const;
+	void AssignInputTagToAbility(FGameplayAbilitySpec& AbilitySpec, const FGameplayTag& InputTag);
 
 	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 

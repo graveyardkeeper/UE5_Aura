@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
+#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
+
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
@@ -61,6 +63,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Inp
 	{
 		return;
 	}
+	FScopedAbilityListLock Lock(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -81,6 +84,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 	{
 		return;
 	}
+	FScopedAbilityListLock Lock(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -100,6 +104,7 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 	{
 		return;
 	}
+	FScopedAbilityListLock Lock(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
@@ -136,8 +141,6 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayA
 				return Tag;
 			}
 		}
-		UE_LOG(LogAura, Error, TEXT("Can't get Ability Tag from ability spec [%s]"),
-		       *GetNameSafe(AbilitySpec.Ability.Get()));
 	}
 	return FGameplayTag();
 }
@@ -151,8 +154,6 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityInputTagFromSpec(const FGame
 			return Tag;
 		}
 	}
-	UE_LOG(LogAura, Error, TEXT("Can't get Input Tag from ability spec [%s]"),
-	       *GetNameSafe(AbilitySpec.Ability.Get()));
 	return FGameplayTag();
 }
 
@@ -186,12 +187,37 @@ FGameplayTag UAuraAbilitySystemComponent::GetAbilityStatusFromAbilityTag(const F
 	return FGameplayTag();
 }
 
+FGameplayTag UAuraAbilitySystemComponent::GetAbilityTypeFromSpec(const FGameplayAbilitySpec& AbilitySpec) const
+{
+	const FGameplayTag AbilityTag = GetAbilityTagFromSpec(AbilitySpec);
+	return UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor())->FindAbilityInfoForTag(AbilityTag).AbilityType;
+}
+
+void UAuraAbilitySystemComponent::AssignInputTagToAbility(FGameplayAbilitySpec& AbilitySpec, const FGameplayTag& InputTag)
+{
+	ClearAbilityInputTag(&AbilitySpec);
+	AbilitySpec.DynamicAbilityTags.AddTag(InputTag);
+}
+
 FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock Lock(*this);
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.Ability->AbilityTags.HasTagExact(AbilityTag))
+		{
+			return &AbilitySpec;
+		}
+	}
+	return nullptr;
+}
+
+FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromInputTag(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock Lock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilityHasInputTag(&AbilitySpec, InputTag))
 		{
 			return &AbilitySpec;
 		}
@@ -257,38 +283,56 @@ void UAuraAbilitySystemComponent::ServerEquipSpell_Implementation(const FGamepla
 	}
 	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
 	// 1. 确保技能状态正常，仅Unlocked和Equipped状态的技能可以装备
-	const FGameplayTag SpellStatus = GetAbilityStatusFromSpec(*Spec);
-	if (!(SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Equipped) || SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Unlocked)))
+	const FGameplayTag AbilityStatus = GetAbilityStatusFromSpec(*Spec);
+	if (!(AbilityStatus.MatchesTagExact(AuraTags.Ability_Status_Equipped) || AbilityStatus.MatchesTagExact(AuraTags.Ability_Status_Unlocked)))
 	{
 		return;
 	}
 	// 2. 确保技能类型和槽位类型匹配（主动/被动）
-	const FGameplayTag SpellType = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor())->FindAbilityInfoForTag(AbilityTag).AbilityType;
+	const FGameplayTag AbilityType = GetAbilityTypeFromSpec(*Spec);
 	const FGameplayTag SlotType = InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag.Passive"))) ? AuraTags.Ability_Type_Passive : AuraTags.Ability_Type_Offensive;
-	if (!SpellType.MatchesTagExact(SlotType))
+	if (!AbilityType.MatchesTagExact(SlotType))
 	{
 		return;
 	}
 	// 3. 装备技能
-	FGameplayTag PrevSlot;
-	if (SpellStatus.MatchesTagExact(AuraTags.Ability_Status_Equipped))
+	const FGameplayTag PrevSlot = GetAbilityInputTagFromSpec(*Spec);
+	if (FGameplayAbilitySpec* SpecWithSlot = GetSpecFromInputTag(InputTag); SpecWithSlot != nullptr)
 	{
-		// Equipped状态
-		PrevSlot = GetAbilityInputTagFromSpec(*Spec);
-		ClearAbilityInputTag(Spec); // 当前技能已装备，卸载其槽位
+		// 目标槽位已经装备了其他技能，卸载该技能，如果是被动技能还需要取消激活
+		const FGameplayTag AbilityTagWithSlot = GetAbilityTagFromSpec(*SpecWithSlot);
+		if (AbilityTag.MatchesTagExact(AbilityTagWithSlot))
+		{
+			// 相同技能重复装备
+			ClientEquipSpell(AbilityTag, InputTag, PrevSlot);
+			return;
+		}
+		if (GetAbilityTypeFromSpec(*SpecWithSlot).MatchesTagExact(AuraTags.Ability_Type_Passive))
+		{
+			// 是顶替掉的是被动技能，取消激活
+			OnPassiveAbilityDeactivatedDelegate.Broadcast(AbilityTagWithSlot);
+		}
+		ClearAbilityInputTag(SpecWithSlot);
+
+		// 更新Equipped状态为Unlocked
+		SpecWithSlot->DynamicAbilityTags.RemoveTag(AuraTags.Ability_Status_Equipped);
+		SpecWithSlot->DynamicAbilityTags.AddTag(AuraTags.Ability_Status_Unlocked);
 	}
-	else
+
+	if (AbilityStatus == AuraTags.Ability_Status_Unlocked)
 	{
+		// 待装备技能是未装备状态，装备该技能，如果该技能是被动技能，还需要激活
+		if (AbilityType == AuraTags.Ability_Type_Passive)
+		{
+			TryActivateAbility(Spec->Handle);
+		}
 		// Unlocked状态，更新状态为Equipped
 		Spec->DynamicAbilityTags.RemoveTag(AuraTags.Ability_Status_Unlocked);
 		Spec->DynamicAbilityTags.AddTag(AuraTags.Ability_Status_Equipped);
 	}
-
-	ClearAbilitiesOfInputTag(InputTag); // 清除目标槽位上已经装备的技能
-	Spec->DynamicAbilityTags.AddTag(InputTag); // 将当前槽位赋予当前技能，完成技能装备
+	AssignInputTagToAbility(*Spec, InputTag); // 赋予目标技能新的槽位
 
 	MarkAbilitySpecDirty(*Spec);
-
 	ClientEquipSpell(AbilityTag, InputTag, PrevSlot);
 }
 
@@ -362,14 +406,7 @@ void UAuraAbilitySystemComponent::ClearAbilitiesOfInputTag(const FGameplayTag& I
 
 bool UAuraAbilitySystemComponent::AbilityHasInputTag(const FGameplayAbilitySpec* AbilitySpec, const FGameplayTag& InputTag)
 {
-	for (const FGameplayTag& Tag : AbilitySpec->DynamicAbilityTags)
-	{
-		if (Tag.MatchesTagExact(InputTag))
-		{
-			return true;
-		}
-	}
-	return false;
+	return AbilitySpec->DynamicAbilityTags.HasTagExact(InputTag);
 }
 
 void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
