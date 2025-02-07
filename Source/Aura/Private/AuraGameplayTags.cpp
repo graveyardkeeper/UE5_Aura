@@ -217,6 +217,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FName("Ability.Lightning.Electrocute"),
 		FString("Electrocute Ability Tag")
 	);
+	Ability_Arcane_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Arcane.ArcaneShards"),
+		FString("Arcane Shards Ability Tag")
+	);
 
 	Ability_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Ability.HitReact"),
@@ -275,6 +279,10 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	Cooldown_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Lightning.Electrocute"),
 		FString("Electrocute Cooldown Tag")
+	);
+	Cooldown_Arcane_ArcaneShards = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Arcane.ArcaneShards"),
+		FString("Arcane Shards Cooldown Tag")
 	);
 
 	/** Combat Socket Tags */

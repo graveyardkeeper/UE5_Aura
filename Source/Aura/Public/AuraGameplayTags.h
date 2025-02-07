@@ -94,6 +94,7 @@ public:
 	FGameplayTag Ability_Summon;
 	FGameplayTag Ability_Fire_FireBolt;
 	FGameplayTag Ability_Lightning_Electrocute;
+	FGameplayTag Ability_Arcane_ArcaneShards;
 
 	FGameplayTag Ability_HitReact;
 
@@ -116,6 +117,7 @@ public:
 	 */
 	FGameplayTag Cooldown_Fire_FireBolt;
 	FGameplayTag Cooldown_Lightning_Electrocute;
+	FGameplayTag Cooldown_Arcane_ArcaneShards;
 
 
 	/**
