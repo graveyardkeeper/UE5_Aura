@@ -108,6 +108,22 @@ void AAuraCharacter::LevelUp_Implementation()
 	MulticastLevelUpEffect();
 }
 
+void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* Mat)
+{
+	AAuraPlayerController* PC = Cast<AAuraPlayerController>(GetController());
+	check(PC);
+
+	PC->ShowMagicCircle(Mat);
+}
+
+void AAuraCharacter::HideMagicCircle_Implementation()
+{
+	AAuraPlayerController* PC = Cast<AAuraPlayerController>(GetController());
+	check(PC);
+
+	PC->HideMagicCircle();
+}
+
 void AAuraCharacter::MulticastLevelUpEffect_Implementation()
 {
 	ShowLevelUpEffect();

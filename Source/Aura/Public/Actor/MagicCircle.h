@@ -16,6 +16,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	void SetMagicCircleMaterial(UMaterialInterface* Mat);
+
 protected:
 	virtual void BeginPlay() override;
 

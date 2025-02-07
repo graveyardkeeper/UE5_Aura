@@ -36,6 +36,8 @@ public:
 	virtual void AddToAttributePoints_Implementation(int32 InPoints) override;
 	virtual void AddToSpellPoints_Implementation(int32 InPoints) override;
 	virtual void LevelUp_Implementation() override;
+	virtual void ShowMagicCircle_Implementation(UMaterialInterface* Mat) override;
+	virtual void HideMagicCircle_Implementation() override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;

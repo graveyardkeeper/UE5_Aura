@@ -22,3 +22,8 @@ void AMagicCircle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+void AMagicCircle::SetMagicCircleMaterial(UMaterialInterface* Mat)
+{
+	MagicCircleDecal->SetDecalMaterial(Mat);
+}
