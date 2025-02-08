@@ -114,6 +114,7 @@ void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* Mat)
 	check(PC);
 
 	PC->ShowMagicCircle(Mat);
+	PC->SetShowMouseCursor(false);
 }
 
 void AAuraCharacter::HideMagicCircle_Implementation()
@@ -122,6 +123,7 @@ void AAuraCharacter::HideMagicCircle_Implementation()
 	check(PC);
 
 	PC->HideMagicCircle();
+	PC->SetShowMouseCursor(true);
 }
 
 void AAuraCharacter::MulticastLevelUpEffect_Implementation()
