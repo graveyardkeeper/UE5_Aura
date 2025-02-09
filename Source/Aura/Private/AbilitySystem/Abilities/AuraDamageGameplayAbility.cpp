@@ -39,6 +39,13 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefault
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
 	Params.KnockbackChance = KnockbackChance;
 	Params.KnockbackForceMagnitude = KnockbackForceMagnitude;
+	if (bIsRadialDamage)
+	{
+		Params.bIsRadialDamage = bIsRadialDamage;
+		Params.RadialDamageOrigin = RadialDamageOrigin;
+		Params.RadialDamageInnerRadius = RadialDamageInnerRadius;
+		Params.RadialDamageOuterRadius = RadialDamageOuterRadius;
+	}
 	if (IsValid(TargetActor))
 	{
 		if (const bool bKnockback = FMath::RandRange(0.f, 100.f) <= KnockbackChance)
