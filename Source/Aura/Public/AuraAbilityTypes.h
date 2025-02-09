@@ -95,7 +95,7 @@ struct FAuraGameplayEffectContext : public FGameplayEffectContext
 	FGameplayTag GetDamageType() const { return DamageType.IsValid() ? *DamageType : FGameplayTag(); }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
 	FVector GetKnockbackForce() const { return KnockbackForce; }
-	bool GetIsRadialDamage() const { return bIsRadialDamage; }
+	bool IsRadialDamage() const { return bIsRadialDamage; }
 	FVector GetRadialDamageOrigin() const { return RadialDamageOrigin; }
 	float GetRadialDamageInnerRadius() const { return RadialDamageInnerRadius; }
 	float GetRadialDamageOuterRadius() const { return RadialDamageOuterRadius; }
