@@ -16,6 +16,7 @@ class UGameplayEffect;
 class UAbilitySystemComponent;
 class UAttributeSet;
 
+
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
@@ -26,6 +27,8 @@ public:
 
 	/** 类中有Replicated的变量时，必须重写这个 */
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual float TakeDamage(float DamageAmount, const struct FDamageEvent& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -46,6 +49,7 @@ public:
 	virtual void IncreaseMinionCount_Implementation(int32 Amount) override;
 	virtual FOnAscRegisteredDelegate& GetOnAscRegisteredDelegate() override;
 	virtual FOnDeathDelegate& GetOnDeathDelegate() override;
+	virtual FOnDamageDelegate& GetOnDamageDelegate() override;
 	virtual void SetIsBeingShocked_Implementation(bool bInIsBeingShocked) override;
 	virtual bool GetIsBeingShocked_Implementation() override;
 
@@ -96,6 +100,7 @@ protected:
 
 	FOnAscRegisteredDelegate OnAscRegisteredDelegate;
 	FOnDeathDelegate OnDeathDelegate;
+	FOnDamageDelegate OnDamageDelegate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes; // effect to initial vital attributes.

@@ -7,6 +7,7 @@
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 static AuraDamageStatics& DamageStatics()
 {
@@ -29,16 +30,15 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().PhysicalResistanceDef);
 }
 
-void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
-                                              FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
+void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	// 重要！需要手动初始化DamageStatics中Tag相关的设置
 	DamageStatics().InitializeTagsStuff();
 
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
-	const AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
-	const AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
+	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
+	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
 
 	int32 SourceCharacterLevel = 1;
 	if (SourceAvatar->Implements<UCombatInterface>())
@@ -52,6 +52,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
@@ -65,6 +66,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// 计算伤害值
 	// 每个伤害型Ability都会有一个Effect，且Effect中会设置一个或多个不同伤害类型的SetByCaller修饰符，其拥有不同伤害类型的Damage.*标签
 	// 通过标签，获取此次受到的不同类型伤害值，并累加，即为此次受到的初始总伤害，然后执行每个属性伤害的抵抗计算
+	// 目前一个敌人只会有一种伤害类型，下面的for只有一次有效
 	float Damage = 0.f;
 	for (const auto& Pair : AuraTags.DamageTypes2Resistances)
 	{
@@ -73,12 +75,43 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayEffectAttributeCaptureDefinition ResistanceDef = DamageStatics().Tags2CaptureDefs[ResistanceTag];
 
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+		if (DamageTypeValue <= 0.f)
+		{
+			continue;
+		}
 
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ResistanceDef, EvaluateParams, Resistance);
 		Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
 
 		DamageTypeValue = DamageTypeValue * (100.f - Resistance) / 100.f;
+
+		// 范围伤害的话，按离中心点距离计算伤害衰减
+		if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
+		{
+			// UE本身提供了Actor的TakeDamage方法，有按半径衰减的策略，但无法直接应用到GAS中，需要走迂回的方式
+			// 先绑定一个委托到Actor，再TakeDamage，使用委托回调中的计算好的伤害
+			if (ICombatInterface* Victim = Cast<ICombatInterface>(TargetAvatar))
+			{
+				Victim->GetOnDamageDelegate().AddLambda([&](float DamageAmount)
+				{
+					// TODO：多次造成伤害验证下看会不会AddLambda多次
+					DamageTypeValue = DamageAmount; // 更新伤害
+				});
+			}
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				TargetAvatar,
+				DamageTypeValue,
+				0.f,
+				UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+				UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
+				UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
+				1.f,
+				UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				SourceAvatar,
+				nullptr);
+		}
 
 		Damage += DamageTypeValue;
 	}
@@ -138,7 +171,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	Damage = bCriticalHit ? Damage * 2.f + SourceCriticalHitDamage : Damage;
 
 	// 设置伤害标记
-	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 	UAuraAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
 	UAuraAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
 
