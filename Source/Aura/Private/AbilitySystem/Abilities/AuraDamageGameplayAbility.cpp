@@ -50,7 +50,9 @@ FDamageEffectParams UAuraDamageGameplayAbility::MakeDamageParamsFromClassDefault
 	{
 		if (const bool bKnockback = FMath::RandRange(0.f, 100.f) <= KnockbackChance)
 		{
-			FRotator Direction = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
+			// 范围技能从中心向敌人方向击退，非范围技能从主角向敌人方向击退
+			const FVector KnockbackOrigin = bIsRadialDamage ? RadialDamageOrigin : GetAvatarActorFromActorInfo()->GetActorLocation();
+			FRotator Direction = (TargetActor->GetActorLocation() - KnockbackOrigin).Rotation();
 			Direction.Pitch = 30.0f;
 			Params.KnockbackForce = Direction.Vector() * KnockbackForceMagnitude;
 			Params.DeathImpulse = Direction.Vector() * DeathImpulseMagnitude;
