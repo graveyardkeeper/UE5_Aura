@@ -152,7 +152,9 @@ void AAuraPlayerController::CursorTrace()
 		return;
 	}
 
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	// 技能指示器激活时，射线检测走忽略玩家和敌人的通道，防止指示器位置跳变
+	const ECollisionChannel CollisionChannel = IsValid(MagicCircle) ? ECC_ExcludePlayers : ECC_Visibility;
+	GetHitResultUnderCursor(CollisionChannel, false, CursorHit);
 	if (!CursorHit.bBlockingHit)
 	{
 		return;
