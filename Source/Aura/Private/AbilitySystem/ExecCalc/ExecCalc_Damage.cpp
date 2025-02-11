@@ -91,11 +91,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		{
 			// UE本身提供了Actor的TakeDamage方法，有按半径衰减的策略，但无法直接应用到GAS中，需要走迂回的方式
 			// 先绑定一个委托到Actor，再TakeDamage，使用委托回调中的计算好的伤害
-			if (ICombatInterface* Victim = Cast<ICombatInterface>(TargetAvatar))
+			if (ICombatInterface* Victim = Cast<ICombatInterface>(TargetAvatar); Victim && !Victim->GetOnDamageDelegate().IsBoundToObject(this))
 			{
-				Victim->GetOnDamageDelegate().AddLambda([&](float DamageAmount)
+				Victim->GetOnDamageDelegate().AddWeakLambda(this, [&](float DamageAmount)
 				{
-					// TODO：多次造成伤害验证下看会不会AddLambda多次
 					DamageTypeValue = DamageAmount; // 更新伤害
 				});
 			}
