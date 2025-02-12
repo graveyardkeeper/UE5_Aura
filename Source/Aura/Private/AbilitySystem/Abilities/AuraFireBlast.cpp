@@ -44,3 +44,8 @@ FString UAuraFireBlast::GetNextLevelDescription(int32 Level)
 	                       DamageAmount
 	);
 }
+
+TArray<AAuraFireBall*> UAuraFireBlast::SpawnFireBalls()
+{
+	return {};
+}
