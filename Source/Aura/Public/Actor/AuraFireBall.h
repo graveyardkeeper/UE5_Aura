@@ -14,6 +14,10 @@ class AURA_API AAuraFireBall : public AAuraProjectile
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartOutgoingTimeline();
+
 protected:
 	virtual void BeginPlay() override;
 
