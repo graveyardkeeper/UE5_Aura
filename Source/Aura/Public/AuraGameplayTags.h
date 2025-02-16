@@ -147,6 +147,12 @@ public:
 	FGameplayTag Player_Block_InputReleased;
 	FGameplayTag Player_Block_CursorTrace;
 
+	/**
+	 * LocalGameplayCue
+	 * 当特效可以通过其他已经复制的变量明确时，建议使用本地非复制的Cue以节省带宽
+	 */
+	FGameplayTag GameplayCue_FireBlast;
+
 
 	/** 一些标签的关联关系 */
 	TMap<FGameplayTag, FGameplayTag> DamageTypes2Resistances;
