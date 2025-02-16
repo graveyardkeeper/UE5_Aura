@@ -18,6 +18,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartOutgoingTimeline();
 
+	UPROPERTY(BlueprintReadWrite)
+	FDamageEffectParams ExplosionDamageParams; // 返回到终点时爆炸的伤害参数
 protected:
 	virtual void BeginPlay() override;
 

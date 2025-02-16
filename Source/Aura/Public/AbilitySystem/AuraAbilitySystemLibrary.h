@@ -135,6 +135,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|GameplayEffects")
 	static void SetRadialDamageOuterRadius(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, float Radius);
+
 	/**
 	 * Gameplay Mechanics
 	 */
@@ -160,4 +161,21 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category="AuraAbilitySystemLibrary|GameplayMechanics")
 	static TArray<FVector> EvenlyRotatedVectors(const FVector& ForwardVector, const FVector& Axis, float Spread, int32 NumVectors);
+
+	/**
+	 * Damage Effect Params
+	 * 下面这些Setter主要是GA蓝图调用，用于处理较复杂的（如多段）伤害参数的动态参数（能力触发时无法立即确定的），DamageGameplayAbility基类中的参数仅一套且为非动态的，比较基础
+	 * 为什么不直接蓝图对struct中的Setter进行调用，因为struct中的方法不能是BlueprintCallable
+	 */
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|DamageEffect")
+	static void SetDamageEffectTargetActor(UPARAM(ref) FDamageEffectParams& DamageEffectParams, AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|DamageEffect")
+	static void SetRadialDamageParams(UPARAM(ref) FDamageEffectParams& DamageEffectParams, bool bIsRadial, float InnerRadius, float OuterRadius, FVector Origin);
+
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|DamageEffect")
+	static void SetKnockbackDirection(UPARAM(ref) FDamageEffectParams& DamageEffectParams, FVector KnockbackDirection, bool bForceKnockback = false, float Magnitude = 0.f);
+
+	UFUNCTION(BlueprintCallable, Category="AuraAbilitySystemLibrary|DamageEffect")
+	static void SetDeathImpulseDirection(UPARAM(ref) FDamageEffectParams& DamageEffectParams, FVector DeathImpulseDirection, float Magnitude = 0.f);
 };
