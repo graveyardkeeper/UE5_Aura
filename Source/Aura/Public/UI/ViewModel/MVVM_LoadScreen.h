@@ -28,7 +28,7 @@ public:
 	void NewGameButtonPressed(int32 Slot);
 
 	UFUNCTION(BlueprintCallable)
-	void NewSlotButtonPressed(int32 Slot, const FText& SlotName);
+	void NewSlotButtonPressed(int32 Slot, const FText& PlayerName);
 
 	UFUNCTION(BlueprintCallable)
 	void SelectSlotButtonPressed(int32 Slot);
