@@ -36,6 +36,9 @@ public:
 	void LoadData();
 
 private:
+	UPROPERTY(BlueprintReadOnly)
+	int32 SelectedSlot = -1;
+
 	UPROPERTY()
 	TMap<int32, UMVVM_LoadSlot*> LoadSlots;
 

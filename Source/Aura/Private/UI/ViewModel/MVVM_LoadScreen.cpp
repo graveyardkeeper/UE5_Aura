@@ -43,7 +43,12 @@ void UMVVM_LoadScreen::NewSlotButtonPressed(int32 Slot, const FText& PlayerName)
 
 void UMVVM_LoadScreen::SelectSlotButtonPressed(int32 Slot)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Select Slot: %d"), Slot));
+	for (const auto& Pair : LoadSlots)
+	{
+		const bool bEnableButton = Pair.Key != Slot;
+		Pair.Value->EnableSelectSlotButton.Broadcast(bEnableButton);
+		SelectedSlot = Slot;
+	}
 }
 
 void UMVVM_LoadScreen::LoadData()
