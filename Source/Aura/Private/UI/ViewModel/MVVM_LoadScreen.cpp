@@ -19,6 +19,8 @@ void UMVVM_LoadScreen::InitializeLoadSlots()
 	LoadSlot_2 = NewObject<UMVVM_LoadSlot>(this, LoadSlotViewModelClass);
 	LoadSlot_2->SetSlotName("LoadSlot_2");
 	LoadSlots.Add(2, LoadSlot_2);
+
+	SetNumLoadSlots(LoadSlots.Num());
 }
 
 UMVVM_LoadSlot* UMVVM_LoadScreen::GetLoadSlotViewModelByIndex(int32 Index) const
@@ -45,10 +47,15 @@ void UMVVM_LoadScreen::SelectSlotButtonPressed(int32 Slot)
 {
 	for (const auto& Pair : LoadSlots)
 	{
-		const bool bEnableButton = Pair.Key != Slot;
+		bool bEnableButton = true;
+		if (Slot == Pair.Key)
+		{
+			bEnableButton = false;
+			SelectedSlot = Pair.Value;
+		}
 		Pair.Value->EnableSelectSlotButton.Broadcast(bEnableButton);
-		SelectedSlot = Slot;
 	}
+	SlotSelected.Broadcast();
 }
 
 void UMVVM_LoadScreen::LoadData()

@@ -21,7 +21,9 @@ void ALoadScreenHUD::BeginPlay()
 
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	PlayerController->SetShowMouseCursor(true);
-	PlayerController->SetInputMode(FInputModeUIOnly());
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(LoadScreenWidget->TakeWidget());
+	PlayerController->SetInputMode(InputMode);
 
 	LoadScreenViewModel->LoadData();
 }

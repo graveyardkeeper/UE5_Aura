@@ -7,6 +7,9 @@
 #include "MVVM_LoadScreen.generated.h"
 
 class UMVVM_LoadSlot;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSlotSelected);
+
 /**
  * 
  */
@@ -17,6 +20,9 @@ class AURA_API UMVVM_LoadScreen : public UMVVMViewModelBase
 
 public:
 	void InitializeLoadSlots();
+
+	UPROPERTY(BlueprintAssignable)
+	FSlotSelected SlotSelected;
 
 	UFUNCTION(BlueprintPure)
 	UMVVM_LoadSlot* GetLoadSlotViewModelByIndex(int32 Index) const;
@@ -35,9 +41,12 @@ public:
 
 	void LoadData();
 
+	void SetNumLoadSlots(int32 InNumLoadSlots) { UE_MVVM_SET_PROPERTY_VALUE(NumLoadSlots, InNumLoadSlots); }
+	int32 GetNumLoadSlots() const { return NumLoadSlots; }
+
 private:
-	UPROPERTY(BlueprintReadOnly)
-	int32 SelectedSlot = -1;
+	UPROPERTY()
+	UMVVM_LoadSlot* SelectedSlot;
 
 	UPROPERTY()
 	TMap<int32, UMVVM_LoadSlot*> LoadSlots;
@@ -51,4 +60,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UMVVM_LoadSlot> LoadSlot_2;
+
+	// 这个变量只是为了让视图模型正常创建，因为没有任何绑定的话，MVVM不会创建
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta =(AllowPrivateAccess="true"))
+	int32 NumLoadSlots;
 };
