@@ -12,12 +12,15 @@ void UMVVM_LoadScreen::InitializeLoadSlots()
 {
 	LoadSlot_0 = NewObject<UMVVM_LoadSlot>(this, LoadSlotViewModelClass);
 	LoadSlot_0->SetSlotName("LoadSlot_0");
+	LoadSlot_0->SetSlotIndex(0);
 	LoadSlots.Add(0, LoadSlot_0);
 	LoadSlot_1 = NewObject<UMVVM_LoadSlot>(this, LoadSlotViewModelClass);
 	LoadSlot_1->SetSlotName("LoadSlot_1");
+	LoadSlot_1->SetSlotIndex(1);
 	LoadSlots.Add(1, LoadSlot_1);
 	LoadSlot_2 = NewObject<UMVVM_LoadSlot>(this, LoadSlotViewModelClass);
 	LoadSlot_2->SetSlotName("LoadSlot_2");
+	LoadSlot_2->SetSlotIndex(2);
 	LoadSlots.Add(2, LoadSlot_2);
 
 	SetNumLoadSlots(LoadSlots.Num());
@@ -56,6 +59,18 @@ void UMVVM_LoadScreen::SelectSlotButtonPressed(int32 Slot)
 		Pair.Value->EnableSelectSlotButton.Broadcast(bEnableButton);
 	}
 	SlotSelected.Broadcast();
+}
+
+void UMVVM_LoadScreen::DeleteButtonPressed()
+{
+	if (SelectedSlot == nullptr)
+	{
+		return;
+	}
+	AAuraGameModeBase::DeleteSlot(SelectedSlot->GetSlotName(), SelectedSlot->GetSlotIndex());
+	SelectedSlot->SetSlotStatus(ESaveSlotStatus::Vacant);
+	SelectedSlot->InitializeSlot();
+	SelectedSlot->EnableSelectSlotButton.Broadcast(true);
 }
 
 void UMVVM_LoadScreen::LoadData()

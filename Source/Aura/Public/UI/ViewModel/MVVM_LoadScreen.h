@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SelectSlotButtonPressed(int32 Slot);
 
+	UFUNCTION(BlueprintCallable)
+	void DeleteButtonPressed();
+
 	void LoadData();
 
 	void SetNumLoadSlots(int32 InNumLoadSlots) { UE_MVVM_SET_PROPERTY_VALUE(NumLoadSlots, InNumLoadSlots); }
