@@ -28,19 +28,33 @@ UMVVM_LoadSlot* UMVVM_LoadScreen::GetLoadSlotViewModelByIndex(int32 Index) const
 
 void UMVVM_LoadScreen::NewGameButtonPressed(int32 Slot)
 {
-	LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(1);
+	LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(static_cast<int32>(ESaveSlotStatus::EnterName));
 }
 
 void UMVVM_LoadScreen::NewSlotButtonPressed(int32 Slot, const FText& PlayerName)
 {
 	LoadSlots[Slot]->SetPlayerName(PlayerName);
+	LoadSlots[Slot]->SetSlotStatus(ESaveSlotStatus::Taken);
 	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
 	GameMode->SaveSlotData(LoadSlots[Slot], Slot);
 
-	LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(2);
+	LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(static_cast<int32>(ESaveSlotStatus::Taken));
 }
 
 void UMVVM_LoadScreen::SelectSlotButtonPressed(int32 Slot)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Select Slot: %d"), Slot));
+}
+
+void UMVVM_LoadScreen::LoadData()
+{
+	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	for (const auto& Pair : LoadSlots)
+	{
+		UMVVM_LoadSlot* LoadSlot = Pair.Value;
+		ULoadScreenSaveGame* SaveGameObject = GameMode->GetSaveSlotData(LoadSlot->GetSlotName(), Pair.Key);
+		LoadSlot->SetSlotStatus(SaveGameObject->SaveSlotStatus);
+		LoadSlot->SetPlayerName(SaveGameObject->PlayerName);
+		LoadSlot->InitializeSlot();
+	}
 }

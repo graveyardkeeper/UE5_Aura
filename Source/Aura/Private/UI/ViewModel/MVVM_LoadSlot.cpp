@@ -5,6 +5,7 @@
 
 void UMVVM_LoadSlot::InitializeSlot()
 {
+	SetWidgetSwitcherIndex.Broadcast(static_cast<int32>(SlotStatus));
 }
 
 void UMVVM_LoadSlot::SetSlotName(const FString& InSlotName)
