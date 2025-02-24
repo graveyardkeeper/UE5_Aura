@@ -34,4 +34,7 @@ public:
 
 	UPROPERTY()
 	FText PlayerName;
+
+	UPROPERTY()
+	FString MapName;
 };

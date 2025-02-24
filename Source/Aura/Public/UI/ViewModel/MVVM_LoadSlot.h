@@ -32,11 +32,13 @@ public:
 	void SetSlotName(const FString& InSlotName);
 	void SetPlayerName(const FText& InPlayerName);
 	void SetSlotIndex(int32 InSlotIndex);
+	void SetMapName(const FString& InMapName);
 
 	ESaveSlotStatus GetSlotStatus() const { return SlotStatus; };
 	FString GetSlotName() const { return SlotName; };
 	FText GetPlayerName() const { return PlayerName; };
 	int32 GetSlotIndex() const { return SlotIndex; };
+	FString GetMapName() const { return MapName; };
 
 private:
 	UPROPERTY()
@@ -46,8 +48,11 @@ private:
 	FString SlotName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Getter, Setter, meta=(AllowPrivateAccess="true"))
+	int32 SlotIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Getter, Setter, meta=(AllowPrivateAccess="true"))
 	FText PlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Getter, Setter, meta=(AllowPrivateAccess="true"))
-	int32 SlotIndex;
+	FString MapName;
 };
