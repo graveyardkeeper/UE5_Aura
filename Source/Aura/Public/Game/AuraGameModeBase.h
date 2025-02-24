@@ -43,6 +43,8 @@ public:
 	static void DeleteSlot(const FString& SlotName, int32 SlotIndex);
 	ULoadScreenSaveGame* GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const;
 
+	void TravelToMap(UMVVM_LoadSlot* Slot) const;
+
 protected:
 	virtual void BeginPlay() override;
 };
