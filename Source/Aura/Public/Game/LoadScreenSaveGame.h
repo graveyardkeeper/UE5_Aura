@@ -37,4 +37,7 @@ public:
 
 	UPROPERTY()
 	FString MapName;
+
+	UPROPERTY()
+	FName PlayerStartTag;
 };

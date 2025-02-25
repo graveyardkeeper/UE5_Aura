@@ -40,6 +40,9 @@ public:
 	int32 GetSlotIndex() const { return SlotIndex; };
 	FString GetMapName() const { return MapName; };
 
+	UPROPERTY()
+	FName PlayerStartTag;
+
 private:
 	UPROPERTY()
 	ESaveSlotStatus SlotStatus;

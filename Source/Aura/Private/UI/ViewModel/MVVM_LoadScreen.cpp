@@ -44,16 +44,11 @@ void UMVVM_LoadScreen::NewSlotButtonPressed(int32 Slot, const FText& PlayerName)
 	LoadSlots[Slot]->SetPlayerName(PlayerName);
 	LoadSlots[Slot]->SetSlotStatus(ESaveSlotStatus::Taken);
 	LoadSlots[Slot]->SetMapName(GameMode->DefaultMapName);
+	LoadSlots[Slot]->PlayerStartTag = GameMode->DefaultPlayerStartTag;
 
 	GameMode->SaveSlotData(LoadSlots[Slot], Slot);
 
 	LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(static_cast<int32>(ESaveSlotStatus::Taken));
-
-	// 传递玩家出生点
-	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GameMode->GetGameInstance());
-	GameInstance->LoadSlotName = LoadSlots[Slot]->GetSlotName();
-	GameInstance->LoadSlotIndex = LoadSlots[Slot]->GetSlotIndex();
-	GameInstance->PlayerStartTag = GameMode->DefaultPlayerStartTag;
 }
 
 void UMVVM_LoadScreen::SelectSlotButtonPressed(int32 Slot)
@@ -85,7 +80,13 @@ void UMVVM_LoadScreen::DeleteButtonPressed()
 
 void UMVVM_LoadScreen::PlayButtonPressed()
 {
+	// 传递玩家出生点
 	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GameMode->GetGameInstance());
+	GameInstance->LoadSlotName = SelectedSlot->GetSlotName();
+	GameInstance->LoadSlotIndex = SelectedSlot->GetSlotIndex();
+	GameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
+
 	GameMode->TravelToMap(SelectedSlot);
 }
 
@@ -99,6 +100,7 @@ void UMVVM_LoadScreen::LoadData()
 		LoadSlot->SetSlotStatus(SaveGameObject->SaveSlotStatus);
 		LoadSlot->SetPlayerName(SaveGameObject->PlayerName);
 		LoadSlot->SetMapName(SaveGameObject->MapName);
+		LoadSlot->PlayerStartTag = SaveGameObject->PlayerStartTag;
 		LoadSlot->InitializeSlot();
 	}
 }
