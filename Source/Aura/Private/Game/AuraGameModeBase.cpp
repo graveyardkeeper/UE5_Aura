@@ -3,6 +3,7 @@
 
 #include "Game/AuraGameModeBase.h"
 
+#include "Game/AuraGameInstance.h"
 #include "Game/LoadScreenSaveGame.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -61,10 +62,11 @@ AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 	{
 		return nullptr;
 	}
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
 	AActor* SelectedActor = Actors[0];
 	for (AActor* Actor : Actors)
 	{
-		if (Cast<APlayerStart>(Actor)->PlayerStartTag == FName("Gate_1"))
+		if (Cast<APlayerStart>(Actor)->PlayerStartTag == GameInstance->PlayerStartTag)
 		{
 			SelectedActor = Actor;
 			break;

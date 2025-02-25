@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UWorld> DefaultMap;
 
+	UPROPERTY(EditDefaultsOnly)
+	FName DefaultPlayerStartTag;
+
 	/** 使用SoftPtr，否则会占用内存 */
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FString, TSoftObjectPtr<UWorld>> Maps;
