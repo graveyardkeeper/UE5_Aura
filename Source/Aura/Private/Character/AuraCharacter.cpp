@@ -5,10 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "AuraGameplayTags.h"
+#include "ShaderPrintParameters.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
+#include "Game/AuraGameModeBase.h"
+#include "Game/LoadScreenSaveGame.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
 #include "UI/HUD/AuraHUD.h"
@@ -124,6 +128,18 @@ void AAuraCharacter::HideMagicCircle_Implementation()
 
 	PC->HideMagicCircle();
 	PC->SetShowMouseCursor(true);
+}
+
+void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
+{
+	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	ULoadScreenSaveGame* SaveData = GameMode->RetrieveInGameSaveData();
+	if (!SaveData)
+	{
+		return;
+	}
+	SaveData->PlayerStartTag = CheckpointTag;
+	GameMode->SaveInGameProgressData(SaveData);
 }
 
 void AAuraCharacter::MulticastLevelUpEffect_Implementation()

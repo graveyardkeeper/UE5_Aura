@@ -38,6 +38,7 @@ public:
 	virtual void LevelUp_Implementation() override;
 	virtual void ShowMagicCircle_Implementation(UMaterialInterface* Mat) override;
 	virtual void HideMagicCircle_Implementation() override;
+	virtual void SaveProgress_Implementation(const FName& CheckpointTag) override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;

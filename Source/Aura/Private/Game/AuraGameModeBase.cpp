@@ -50,6 +50,19 @@ ULoadScreenSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName,
 	return LoadScreenSaveGame;
 }
 
+ULoadScreenSaveGame* AAuraGameModeBase::RetrieveInGameSaveData() const
+{
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
+	return GetSaveSlotData(GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+}
+
+void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveData) const
+{
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
+	GameInstance->PlayerStartTag = SaveData->PlayerStartTag;
+	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+}
+
 void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot) const
 {
 	UGameplayStatics::OpenLevelBySoftObjectPtr(this, Maps.FindChecked(Slot->GetMapName()));
