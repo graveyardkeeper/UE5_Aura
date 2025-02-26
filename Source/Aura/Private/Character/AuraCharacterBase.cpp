@@ -230,32 +230,15 @@ void AAuraCharacterBase::InitializeDefaultAttributes() const
 	{
 		ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	}
-	else
-	{
-		UE_LOG(LogAbilitySystemComponent, Error, TEXT("DefaultPrimaryAttributes not set on character '%s', fill it!"),
-		       *GetName());
-	}
 
 	if (DefaultSecondaryAttributes != nullptr)
 	{
 		ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
 	}
-	else
-	{
-		UE_LOG(LogAbilitySystemComponent, Error, TEXT("DefaultSecondaryAttributes not set on character '%s', fill it!"),
-		       *GetName()
-		)
-	}
 
 	if (DefaultVitalAttributes != nullptr)
 	{
 		ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
-	}
-	else
-	{
-		UE_LOG(LogAbilitySystemComponent, Error, TEXT("DefaultVitalAttributes not set on character '%s', fill it!"),
-		       *GetName()
-		)
 	}
 }
 

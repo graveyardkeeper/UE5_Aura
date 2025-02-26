@@ -45,6 +45,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Character Class Defaults")
 	TMap<ECharacterClass, FCharacterClassDefaultInfo> CharacterClassInfo;
 
+	/** 从磁盘加载属性时，使用SetByCaller方式 */
+	UPROPERTY(EditDefaultsOnly, Category="Common Class Defaults|Attributes")
+	TSubclassOf<UGameplayEffect> PrimaryAttributes_SetByCaller;
+
 	UPROPERTY(EditDefaultsOnly, Category="Common Class Defaults|Attributes")
 	TSubclassOf<UGameplayEffect> SecondaryAttributes;
 

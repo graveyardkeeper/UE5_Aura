@@ -40,7 +40,8 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	InitAbilityActorInfo();
-	AddCharacterAbilities();
+
+	LoadProgress();
 }
 
 /*
@@ -131,27 +132,6 @@ void AAuraCharacter::HideMagicCircle_Implementation()
 	PC->SetShowMouseCursor(true);
 }
 
-void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
-{
-	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
-	ULoadScreenSaveGame* SaveData = GameMode->RetrieveInGameSaveData();
-	if (!SaveData)
-	{
-		return;
-	}
-	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
-	SaveData->PlayerStartTag = CheckpointTag;
-	SaveData->PlayerLevel = PS->GetPlayerLevel();
-	SaveData->PlayerXP = PS->GetPlayerXP();
-	SaveData->AttributePoints = PS->GetPlayerAttributePoints();
-	SaveData->SpellPoints = PS->GetPlayerSpellPoints();
-	SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetNumericValue(GetAttributeSet());
-	SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetNumericValue(GetAttributeSet());
-	SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
-	SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
-
-	GameMode->SaveInGameProgressData(SaveData);
-}
 
 void AAuraCharacter::MulticastLevelUpEffect_Implementation()
 {
@@ -181,8 +161,6 @@ void AAuraCharacter::InitAbilityActorInfo()
 	// 一些广播和回调绑定
 	OnAscRegisteredDelegate.Broadcast(AbilitySystemComponent);
 	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraCharacter::OnStunTagChanged);
-
-	InitializeDefaultAttributes();
 }
 
 void AAuraCharacter::OnRep_Stunned()
@@ -219,4 +197,53 @@ void AAuraCharacter::OnRep_Burned()
 	{
 		BurnDebuffComponent->Deactivate();
 	}
+}
+
+void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
+{
+	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	ULoadScreenSaveGame* SaveData = GameMode->RetrieveInGameSaveData();
+	if (!SaveData)
+	{
+		return;
+	}
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	SaveData->PlayerStartTag = CheckpointTag;
+	SaveData->PlayerLevel = PS->GetPlayerLevel();
+	SaveData->PlayerXP = PS->GetPlayerXP();
+	SaveData->AttributePoints = PS->GetPlayerAttributePoints();
+	SaveData->SpellPoints = PS->GetPlayerSpellPoints();
+	SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
+
+	SaveData->bFirstTimeLoadIn = false;
+	GameMode->SaveInGameProgressData(SaveData);
+}
+
+void AAuraCharacter::LoadProgress()
+{
+	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	ULoadScreenSaveGame* SaveData = GameMode->RetrieveInGameSaveData();
+	if (!SaveData)
+	{
+		return;
+	}
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+	PS->SetPlayerLevel(SaveData->PlayerLevel);
+	PS->SetPlayerXP(SaveData->PlayerXP);
+	PS->SetPlayerAttributePoints(SaveData->AttributePoints);
+	PS->SetPlayerSpellPoints(SaveData->SpellPoints);
+
+	if (SaveData->bFirstTimeLoadIn)
+	{
+		InitializeDefaultAttributes();
+		AddCharacterAbilities();
+	}
+	else
+	{
+	}
+
+	GameMode->SaveInGameProgressData(SaveData);
 }
