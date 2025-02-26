@@ -7,6 +7,7 @@
 #include "AuraGameplayTags.h"
 #include "ShaderPrintParameters.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
 #include "Game/AuraGameModeBase.h"
@@ -138,7 +139,17 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 	{
 		return;
 	}
+	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
 	SaveData->PlayerStartTag = CheckpointTag;
+	SaveData->PlayerLevel = PS->GetPlayerLevel();
+	SaveData->PlayerXP = PS->GetPlayerXP();
+	SaveData->AttributePoints = PS->GetPlayerAttributePoints();
+	SaveData->SpellPoints = PS->GetPlayerSpellPoints();
+	SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
+	SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
+
 	GameMode->SaveInGameProgressData(SaveData);
 }
 
