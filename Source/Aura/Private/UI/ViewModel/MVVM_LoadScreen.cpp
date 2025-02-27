@@ -99,6 +99,7 @@ void UMVVM_LoadScreen::LoadData()
 		ULoadScreenSaveGame* SaveGameObject = GameMode->GetSaveSlotData(LoadSlot->GetSlotName(), Pair.Key);
 		LoadSlot->SetSlotStatus(SaveGameObject->SaveSlotStatus);
 		LoadSlot->SetPlayerName(SaveGameObject->PlayerName);
+		LoadSlot->SetPlayerLevel(SaveGameObject->PlayerLevel);
 		LoadSlot->SetMapName(SaveGameObject->MapName);
 		LoadSlot->PlayerStartTag = SaveGameObject->PlayerStartTag;
 		LoadSlot->InitializeSlot();

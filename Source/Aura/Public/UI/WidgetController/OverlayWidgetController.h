@@ -32,6 +32,8 @@ struct FUIWidgetRow : public FTableRowBase
 /** Attributes changed delegates */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerLevelChangedSignature, int32, NewLevel, bool, bLevelUp);
+
 /** end Attributes changed delegates */
 
 /** Gameplay effect message delegates*/
@@ -71,7 +73,7 @@ public:
 	FOnAttributeChangedSignature OnPlayerXPPercentChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|PlayerStats")
-	FOnPlayerStatChangedSignature OnPlayerLevelChanged;
+	FOnPlayerLevelChangedSignature OnPlayerLevelChanged;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="WidgetData")

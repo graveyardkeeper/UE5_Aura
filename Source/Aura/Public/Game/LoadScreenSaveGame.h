@@ -46,7 +46,7 @@ public:
 
 	/** Player */
 	UPROPERTY()
-	int32 PlayerLevel;
+	int32 PlayerLevel = 1;
 
 	UPROPERTY()
 	int32 PlayerXP;

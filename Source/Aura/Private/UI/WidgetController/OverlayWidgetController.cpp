@@ -28,9 +28,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	{
 		OnPlayerXPPercentChanged.Broadcast(GetAuraPS()->GetPlayerXPPercent());
 	});
-	GetAuraPS()->OnPlayerLevelChangedDelegate.AddLambda([this](int32 NewValue)
+	GetAuraPS()->OnPlayerLevelChangedDelegate.AddLambda([this](int32 NewLevel, bool bLevelUp)
 	{
-		OnPlayerLevelChanged.Broadcast(NewValue);
+		OnPlayerLevelChanged.Broadcast(NewLevel, bLevelUp);
 	});
 
 

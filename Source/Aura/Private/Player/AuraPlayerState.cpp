@@ -42,7 +42,8 @@ int32 AAuraPlayerState::AddToPlayerXP(int32 InXP)
 
 void AAuraPlayerState::AddToPlayerLevel(int32 InLevel)
 {
-	SetPlayerLevel(Level + InLevel);
+	// 调用AddTo方法，我们认为是升级场景
+	SetPlayerLevel(Level + InLevel, true);
 }
 
 void AAuraPlayerState::AddToPlayerAttributePoints(int32 InAttributePoints)
@@ -56,10 +57,10 @@ void AAuraPlayerState::AddToPlayerSpellPoints(int32 InSpellPoints)
 }
 
 
-void AAuraPlayerState::SetPlayerLevel(int32 InLevel)
+void AAuraPlayerState::SetPlayerLevel(int32 InLevel, bool bLevelUp)
 {
 	Level = InLevel;
-	OnPlayerLevelChangedDelegate.Broadcast(Level);
+	OnPlayerLevelChangedDelegate.Broadcast(Level, bLevelUp);
 
 	// 等级变更，触发更新技能状态
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->UpdateAbilityStatuses(Level);
@@ -130,7 +131,8 @@ void AAuraPlayerState::SetPlayerSpellPoints(int32 InSpellPoints)
 
 void AAuraPlayerState::OnRep_Level(int32 OldValue)
 {
-	OnPlayerLevelChangedDelegate.Broadcast(Level);
+	// TODO: 这里有问题，客户端得知道是不是升级引起的等级变化，先暂时写死true
+	OnPlayerLevelChangedDelegate.Broadcast(Level, true);
 }
 
 void AAuraPlayerState::OnRep_XP(int32 OldValue)

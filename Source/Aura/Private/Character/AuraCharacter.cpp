@@ -7,6 +7,7 @@
 #include "AuraGameplayTags.h"
 #include "ShaderPrintParameters.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
@@ -230,11 +231,6 @@ void AAuraCharacter::LoadProgress()
 	{
 		return;
 	}
-	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
-	PS->SetPlayerLevel(SaveData->PlayerLevel);
-	PS->SetPlayerXP(SaveData->PlayerXP);
-	PS->SetPlayerAttributePoints(SaveData->AttributePoints);
-	PS->SetPlayerSpellPoints(SaveData->SpellPoints);
 
 	if (SaveData->bFirstTimeLoadIn)
 	{
@@ -243,6 +239,12 @@ void AAuraCharacter::LoadProgress()
 	}
 	else
 	{
+		AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
+		PS->SetPlayerLevel(SaveData->PlayerLevel);
+		PS->SetPlayerXP(SaveData->PlayerXP);
+		PS->SetPlayerAttributePoints(SaveData->AttributePoints);
+		PS->SetPlayerSpellPoints(SaveData->SpellPoints);
+		UAuraAbilitySystemLibrary::InitCharacterDefaultAttributesFromSaveData(this, GetAbilitySystemComponent(), SaveData);
 	}
 
 	GameMode->SaveInGameProgressData(SaveData);

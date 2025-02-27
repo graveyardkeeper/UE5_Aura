@@ -8,6 +8,7 @@
 #include "AuraGameplayTags.h"
 #include "Engine/OverlapResult.h"
 #include "Game/AuraGameModeBase.h"
+#include "Game/LoadScreenSaveGame.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/AuraPlayerState.h"
@@ -78,26 +79,49 @@ void UAuraAbilitySystemLibrary::InitCharacterDefaultAttributes(const UObject* Wo
 
 	FGameplayEffectContextHandle PrimaryAttrCtx = ASC->MakeEffectContext();
 	PrimaryAttrCtx.AddSourceObject(ASC->GetAvatarActor());
-	const FGameplayEffectSpecHandle PrimaryAttrSpecHandle = ASC->MakeOutgoingSpec(
-		ClassDefaults.PrimaryAttributes,
-		Level,
-		PrimaryAttrCtx);
+	const FGameplayEffectSpecHandle PrimaryAttrSpecHandle = ASC->MakeOutgoingSpec(ClassDefaults.PrimaryAttributes, Level, PrimaryAttrCtx);
 	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttrSpecHandle.Data.Get());
 
 	FGameplayEffectContextHandle SecondaryAttrCtx = ASC->MakeEffectContext();
 	SecondaryAttrCtx.AddSourceObject(ASC->GetAvatarActor());
-	const FGameplayEffectSpecHandle SecondaryAttrSpecHandle = ASC->MakeOutgoingSpec(
-		CharacterClassInfo->SecondaryAttributes,
-		Level,
-		SecondaryAttrCtx);
+	const FGameplayEffectSpecHandle SecondaryAttrSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes, Level, SecondaryAttrCtx);
 	ASC->ApplyGameplayEffectSpecToSelf(*SecondaryAttrSpecHandle.Data.Get());
 
 	FGameplayEffectContextHandle VitalAttrCtx = ASC->MakeEffectContext();
 	VitalAttrCtx.AddSourceObject(ASC->GetAvatarActor());
-	const FGameplayEffectSpecHandle VitalAttrSpecHandle = ASC->MakeOutgoingSpec(
-		CharacterClassInfo->VitalAttributes,
-		Level,
-		VitalAttrCtx);
+	const FGameplayEffectSpecHandle VitalAttrSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, VitalAttrCtx);
+	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttrSpecHandle.Data.Get());
+}
+
+void UAuraAbilitySystemLibrary::InitCharacterDefaultAttributesFromSaveData(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ULoadScreenSaveGame* SaveData)
+{
+	const UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	const FAuraGameplayTags& AuraTags = FAuraGameplayTags::Get();
+
+	FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
+	ContextHandle.AddSourceObject(ASC->GetAvatarActor());
+
+	const FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->PrimaryAttributes_SetByCaller, 1.f, ContextHandle);
+
+	/** Primary Attributes */
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, AuraTags.Attribute_Primary_Strength, SaveData->Strength);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, AuraTags.Attribute_Primary_Intelligence, SaveData->Intelligence);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, AuraTags.Attribute_Primary_Resilience, SaveData->Resilience);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, AuraTags.Attribute_Primary_Vigor, SaveData->Vigor);
+	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+
+	FGameplayEffectContextHandle SecondaryAttrCtx = ASC->MakeEffectContext();
+	SecondaryAttrCtx.AddSourceObject(ASC->GetAvatarActor());
+	/** 注意，这里SecondaryAttribute必须是Infinite的GE，因为要随着PrimaryAttribute变化而变化
+	 *  1. 为什么敌人的SecondaryAttribute不是Infinite的？因为敌人不会升级导致PrimaryAttribute变化进而影响Secondary的变化，优化手段，理论敌人Infinite也不影响
+	 *  2. 为什么玩家的VitalAttribute不需要Infinite？因为VitalAttribute（当前生命和魔法）是在升级后手动补充满的，不是通过属性依赖进行更新的
+	 */
+	const FGameplayEffectSpecHandle SecondaryAttrSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes_Infinite, 1.f, SecondaryAttrCtx);
+	ASC->ApplyGameplayEffectSpecToSelf(*SecondaryAttrSpecHandle.Data.Get());
+
+	FGameplayEffectContextHandle VitalAttrCtx = ASC->MakeEffectContext();
+	VitalAttrCtx.AddSourceObject(ASC->GetAvatarActor());
+	const FGameplayEffectSpecHandle VitalAttrSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, 1.f, VitalAttrCtx);
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttrSpecHandle.Data.Get());
 }
 

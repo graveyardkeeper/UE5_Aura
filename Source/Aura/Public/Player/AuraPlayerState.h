@@ -13,6 +13,8 @@ class UAttributeSet;
 
 // 玩家数据变更委托，如经验、等级等不在AttributeSet中的属性
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedDelegate, int32 /*New Value*/);
+// 等级变更单独一个，需要加个参数代表是否是正常升级还是被动设置升级（如载入进度），影响是否展示升级动画
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnPlayerLevelChangedDelegate, int32 /*New Value*/, bool /* bLevelUp */);
 
 /**
  * 
@@ -30,7 +32,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	FOnPlayerStatChangedDelegate OnPlayerXPChangedDelegate;
-	FOnPlayerStatChangedDelegate OnPlayerLevelChangedDelegate;
+	FOnPlayerLevelChangedDelegate OnPlayerLevelChangedDelegate;
 	FOnPlayerStatChangedDelegate OnPlayerAttributePointsChangedDelegate;
 	FOnPlayerStatChangedDelegate OnPlayerSpellPointsChangedDelegate;
 
@@ -46,7 +48,7 @@ public:
 	void AddToPlayerSpellPoints(int32 InSpellPoints);
 
 	int32 SetPlayerXP(int32 InXP);
-	void SetPlayerLevel(int32 InLevel);
+	void SetPlayerLevel(int32 InLevel, bool bLevelUp = false);
 	void SetPlayerAttributePoints(int32 InAttributePoints);
 	void SetPlayerSpellPoints(int32 InSpellPoints);
 
