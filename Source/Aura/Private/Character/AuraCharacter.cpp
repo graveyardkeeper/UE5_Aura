@@ -9,6 +9,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "DataWrappers/ChaosVDQueryDataWrappers.h"
 #include "Game/AuraGameModeBase.h"
@@ -208,6 +209,8 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 	{
 		return;
 	}
+	SaveData->bFirstTimeLoadIn = false;
+
 	AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
 	SaveData->PlayerStartTag = CheckpointTag;
 	SaveData->PlayerLevel = PS->GetPlayerLevel();
@@ -219,7 +222,34 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 	SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
 	SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
 
-	SaveData->bFirstTimeLoadIn = false;
+	if (HasAuthority())
+	{
+		return;
+	}
+
+	UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	FForEachAbilityDelegate SaveAbilityDelegate;
+	SaveAbilityDelegate.BindLambda([this, AuraASC, SaveData](const FGameplayAbilitySpec& Spec)
+	{
+		const FGameplayTag AbilityTag = AuraASC->GetAbilityTagFromSpec(Spec);
+		if (!AbilityTag.IsValid())
+		{
+			return;
+		}
+		FAuraAbilityInfo AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(this)->FindAbilityInfoForTag(AbilityTag);
+
+		FSavedAbility SavedAbility;
+		SavedAbility.GameplayAbility = AbilityInfo.Ability;
+		SavedAbility.AbilityTag = AbilityTag;
+		SavedAbility.AbilityInputTag = AuraASC->GetAbilityInputTagFromSpec(Spec);
+		SavedAbility.AbilityStatus = AuraASC->GetAbilityStatusFromSpec(Spec);
+		SavedAbility.AbilityType = AbilityInfo.AbilityType;
+		SavedAbility.AbilityLevel = Spec.Level;
+
+		SaveData->SavedAbilities.Add(SavedAbility);
+	});
+	AuraASC->ForEachAbility(SaveAbilityDelegate);
+
 	GameMode->SaveInGameProgressData(SaveData);
 }
 
