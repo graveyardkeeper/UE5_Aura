@@ -108,6 +108,7 @@ public:
 	FGameplayTag Ability_Type_Passive;
 	FGameplayTag Ability_Type_None;
 
+	FGameplayTag Ability_Passive_ListenForEvent; // meta被动，不会显示在被动技能上，一些游戏底层事件的监听，如监听经验获得事件
 	FGameplayTag Ability_Passive_HaloOfProtection;
 	FGameplayTag Ability_Passive_LifeSiphon;
 	FGameplayTag Ability_Passive_ManaSiphon;

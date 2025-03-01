@@ -261,6 +261,11 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FString("Ability None Type")
 	);
 
+	Ability_Passive_ListenForEvent = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Ability.Passive.ListenForEvent"),
+		FString("Meta Passive Ability Listen for Event")
+	);
+
 	Ability_Passive_HaloOfProtection = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Ability.Passive.HaloOfProtection"),
 		FString("Passive Ability Halo Of Protection")

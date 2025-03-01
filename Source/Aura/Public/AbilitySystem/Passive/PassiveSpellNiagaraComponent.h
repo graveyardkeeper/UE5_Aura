@@ -7,6 +7,7 @@
 #include "NiagaraComponent.h"
 #include "PassiveSpellNiagaraComponent.generated.h"
 
+class UAuraAbilitySystemComponent;
 /**
  * 
  */
@@ -25,4 +26,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	void OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate);
+
+	void ActiveIfAlreadyEquipped(UAuraAbilitySystemComponent* AuraASC);
 };

@@ -6,7 +6,6 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
-#include "Aura/AuraLogChannels.h"
 #include "Net/UnrealNetwork.h"
 
 AAuraPlayerState::AAuraPlayerState()
@@ -90,7 +89,7 @@ int32 AAuraPlayerState::SetPlayerXP(int32 InXP)
 	{
 		// Level up
 		DeltaLevel = NewLevel - CurrLevel;
-		SetPlayerLevel(NewLevel);
+		SetPlayerLevel(NewLevel, true);
 
 		// 计算本次升级一共获得的属性点和技能点
 		int32 AttributePointsAward = 0;

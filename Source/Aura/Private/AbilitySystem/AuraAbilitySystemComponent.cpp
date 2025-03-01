@@ -11,6 +11,7 @@
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
 #include "Aura/AuraLogChannels.h"
+#include "Game/LoadScreenSaveGame.h"
 #include "Interaction/PlayerInterface.h"
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
@@ -34,12 +35,41 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 	OnAbilityGivenDelegate.Broadcast();
 }
 
+void UAuraAbilitySystemComponent::AddCharacterAbilitiesFromSaveData(const TArray<FSavedAbility>& SavedAbilities)
+{
+	for (const FSavedAbility& Data : SavedAbilities)
+	{
+		FGameplayAbilitySpec LoadedAbilitySpec = FGameplayAbilitySpec(Data.GameplayAbility, Data.AbilityLevel);
+		LoadedAbilitySpec.DynamicAbilityTags.AddTag(Data.AbilityInputTag);
+		LoadedAbilitySpec.DynamicAbilityTags.AddTag(Data.AbilityStatus);
+
+		if (Data.AbilityType == FAuraGameplayTags::Get().Ability_Type_Offensive)
+		{
+			GiveAbility(LoadedAbilitySpec);
+		}
+		else if (Data.AbilityType == FAuraGameplayTags::Get().Ability_Type_Passive)
+		{
+			if (Data.AbilityStatus == FAuraGameplayTags::Get().Ability_Status_Equipped)
+			{
+				GiveAbilityAndActivateOnce(LoadedAbilitySpec);
+			}
+			else
+			{
+				GiveAbility(LoadedAbilitySpec);
+			}
+		}
+	}
+	bStartupAbilitiesGiven = true;
+	OnAbilityGivenDelegate.Broadcast();
+}
+
 void UAuraAbilitySystemComponent::AddCharacterPassiveAbilities(
 	const TArray<TSubclassOf<UGameplayAbility>>& PassiveAbilities)
 {
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : PassiveAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		AbilitySpec.DynamicAbilityTags.AddTag(FAuraGameplayTags::Get().Ability_Status_Equipped);
 		GiveAbilityAndActivateOnce(AbilitySpec); // 被动能力在赋予时就激活
 	}
 }

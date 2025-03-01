@@ -222,14 +222,15 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 	SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
 	SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
 
-	if (HasAuthority())
+	if (!HasAuthority())
 	{
 		return;
 	}
 
 	UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	TArray<FSavedAbility> SavedAbilities;
 	FForEachAbilityDelegate SaveAbilityDelegate;
-	SaveAbilityDelegate.BindLambda([this, AuraASC, SaveData](const FGameplayAbilitySpec& Spec)
+	SaveAbilityDelegate.BindLambda([this, AuraASC, &SavedAbilities](const FGameplayAbilitySpec& Spec)
 	{
 		const FGameplayTag AbilityTag = AuraASC->GetAbilityTagFromSpec(Spec);
 		if (!AbilityTag.IsValid())
@@ -246,9 +247,10 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 		SavedAbility.AbilityType = AbilityInfo.AbilityType;
 		SavedAbility.AbilityLevel = Spec.Level;
 
-		SaveData->SavedAbilities.Add(SavedAbility);
+		SavedAbilities.Add(SavedAbility);
 	});
 	AuraASC->ForEachAbility(SaveAbilityDelegate);
+	SaveData->SavedAbilities = SavedAbilities;
 
 	GameMode->SaveInGameProgressData(SaveData);
 }
@@ -269,6 +271,9 @@ void AAuraCharacter::LoadProgress()
 	}
 	else
 	{
+		// Notice: 先加载技能，再加载等级，先加载等级的话会导致生成一份新的技能Ability，导致问题，可以修复
+		Cast<UAuraAbilitySystemComponent>(GetAbilitySystemComponent())->AddCharacterAbilitiesFromSaveData(SaveData->SavedAbilities);
+
 		AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();
 		PS->SetPlayerLevel(SaveData->PlayerLevel);
 		PS->SetPlayerXP(SaveData->PlayerXP);

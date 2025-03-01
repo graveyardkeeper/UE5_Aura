@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AuraAbilitySystemComponent.generated.h"
 
+struct FSavedAbility;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnEffectAssetTagsDelegate, const FGameplayTagContainer& /*Asset Tags*/);
 DECLARE_MULTICAST_DELEGATE(FOnAbilityGivenDelegate);
 DECLARE_DELEGATE_OneParam(FForEachAbilityDelegate, const FGameplayAbilitySpec&);
@@ -35,6 +36,7 @@ public:
 	void AbilityActorInfoSet();
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
+	void AddCharacterAbilitiesFromSaveData(const TArray<FSavedAbility>& SavedAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& PassiveAbilities);
 
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
