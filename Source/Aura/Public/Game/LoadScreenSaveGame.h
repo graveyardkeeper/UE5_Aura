@@ -17,6 +17,47 @@ enum class ESaveSlotStatus : uint8
 	Taken,
 };
 
+/**
+ * Structure for Saving World Objects
+ */
+USTRUCT(BlueprintType)
+struct FSavedActor
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FName ActorName;
+
+	UPROPERTY()
+	FTransform Transform;
+
+	UPROPERTY()
+	TArray<uint8> Bytes;
+
+	bool operator==(const FSavedActor& Other) const
+	{
+		return ActorName == Other.ActorName;
+	}
+};
+
+/**
+ * Structure for Saving a Map
+ */
+USTRUCT(BlueprintType)
+struct FSavedMap
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString MapAssetName;
+
+	UPROPERTY()
+	TArray<FSavedActor> SavedActors;
+};
+
+/**
+ * Structure for Saving Abilities
+ */
 USTRUCT(BlueprintType)
 struct FSavedAbility
 {
@@ -100,4 +141,11 @@ public:
 	/** Abilities */
 	UPROPERTY()
 	TArray<FSavedAbility> SavedAbilities;
+
+	/** Maps */
+	UPROPERTY()
+	TArray<FSavedMap> SavedMaps;
+
+	bool HasMap(const FString& InMapName) const;
+	FSavedMap GetSavedMapWithMapName(const FString& InMapName) const;
 };
