@@ -4,6 +4,7 @@
 #include "Game/AuraGameModeBase.h"
 
 #include "EngineUtils.h"
+#include "Aura/AuraLogChannels.h"
 #include "Game/AuraGameInstance.h"
 #include "Game/LoadScreenSaveGame.h"
 #include "GameFramework/PlayerStart.h"
@@ -67,7 +68,7 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveData) co
 	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
 }
 
-void AAuraGameModeBase::SaveWorldState(UWorld* World)
+void AAuraGameModeBase::SaveWorldState(UWorld* World) const
 {
 	FString MapName = World->GetMapName();
 	MapName.RemoveFromStart(World->StreamingLevelsPrefix);
@@ -114,6 +115,54 @@ void AAuraGameModeBase::SaveWorldState(UWorld* World)
 	}
 
 	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+}
+
+void AAuraGameModeBase::LoadWorldState(UWorld* World) const
+{
+	FString MapName = World->GetMapName();
+	MapName.RemoveFromStart(World->StreamingLevelsPrefix);
+
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
+	if (!UGameplayStatics::DoesSaveGameExist(GameInstance->LoadSlotName, GameInstance->LoadSlotIndex))
+	{
+		return;
+	}
+
+	ULoadScreenSaveGame* SaveData = GetSaveSlotData(GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+	if (!SaveData || !SaveData->HasMap(MapName))
+	{
+		UE_LOG(LogAura, Error, TEXT("Failed to load slot, or the map does not exist in the saved data!"));
+		return;
+	}
+	FSavedMap SavedMap = SaveData->GetSavedMapWithMapName(MapName);
+	for (FActorIterator It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!IsValid(Actor) || !Actor->Implements<USaveInterface>())
+		{
+			continue;
+		}
+		for (const FSavedActor& SavedActor : SavedMap.SavedActors)
+		{
+			// TODO: 这里性能有点拉跨，可以优化下
+			if (Actor->GetFName() != SavedActor.ActorName)
+			{
+				continue;
+			}
+			if (ISaveInterface::Execute_ShouldLoadTransform(Actor))
+			{
+				Actor->SetActorTransform(SavedActor.Transform);
+			}
+			FMemoryReader Reader(SavedActor.Bytes);
+			FObjectAndNameAsStringProxyArchive Archive(Reader, true);
+			Archive.ArIsSaveGame = true;
+
+			Actor->Serialize(Archive); // 序列化和反序列化都是Serialize方法
+
+			// Actor完成加载，通知
+			ISaveInterface::Execute_OnActorLoaded(Actor);
+		}
+	}
 }
 
 void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot) const

@@ -43,7 +43,10 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 
 	InitAbilityActorInfo();
 
+	// 加载玩家数据
 	LoadProgress();
+	// 加载世界数据
+	Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this))->LoadWorldState(GetWorld());
 }
 
 /*

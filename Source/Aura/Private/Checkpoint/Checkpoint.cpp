@@ -5,7 +5,9 @@
 
 #include "GeometryTypes.h"
 #include "Components/SphereComponent.h"
+#include "Game/AuraGameModeBase.h"
 #include "Interaction/PlayerInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 ACheckpoint::ACheckpoint(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -23,6 +25,19 @@ ACheckpoint::ACheckpoint(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
+bool ACheckpoint::ShouldLoadTransform_Implementation() const
+{
+	return false;
+}
+
+void ACheckpoint::OnActorLoaded_Implementation()
+{
+	if (bReached)
+	{
+		HandleGlowEffects();
+	}
+}
+
 void ACheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,8 +49,14 @@ void ACheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 {
 	if (OtherActor->Implements<UPlayerInterface>())
 	{
+		bReached = true; // 得先设置，序列化在后
+
 		HandleGlowEffects();
+
+		// 保存玩家数据
 		IPlayerInterface::Execute_SaveProgress(OtherActor, PlayerStartTag);
+		// 保存世界状态
+		Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this))->SaveWorldState(GetWorld());
 	}
 }
 
