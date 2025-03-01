@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
 
+class IHighlightInterface;
 class AMagicCircle;
 class UNiagaraSystem;
 class UDamageTextComponent;
@@ -60,8 +61,8 @@ private:
 
 	void Move(const FInputActionValue& InputValue);
 
-	IEnemyInterface* LastTracedActor = nullptr;
-	IEnemyInterface* CurrTracedActor = nullptr;
+	IHighlightInterface* LastTracedActor = nullptr;
+	IHighlightInterface* CurrTracedActor = nullptr;
 	FHitResult CursorHit;
 
 	void CursorTrace();
