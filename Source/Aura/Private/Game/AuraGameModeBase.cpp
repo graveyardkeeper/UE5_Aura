@@ -3,10 +3,13 @@
 
 #include "Game/AuraGameModeBase.h"
 
+#include "EngineUtils.h"
 #include "Game/AuraGameInstance.h"
 #include "Game/LoadScreenSaveGame.h"
 #include "GameFramework/PlayerStart.h"
+#include "Interaction/SaveInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "UI/ViewModel/MVVM_LoadSlot.h"
 
 void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex) const
@@ -61,6 +64,55 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveData) co
 {
 	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
 	GameInstance->PlayerStartTag = SaveData->PlayerStartTag;
+	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+}
+
+void AAuraGameModeBase::SaveWorldState(UWorld* World)
+{
+	FString MapName = World->GetMapName();
+	MapName.RemoveFromStart(World->StreamingLevelsPrefix);
+
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
+	ULoadScreenSaveGame* SaveData = GetSaveSlotData(GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
+	if (!SaveData)
+	{
+		return;
+	}
+	if (!SaveData->HasMap(MapName))
+	{
+		FSavedMap NewSavedMap;
+		NewSavedMap.MapAssetName = MapName;
+		SaveData->SavedMaps.Add(NewSavedMap);
+	}
+
+	TArray<FSavedActor> SavedActors;
+	for (FActorIterator It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (!IsValid(Actor) || !Actor->Implements<USaveInterface>())
+		{
+			continue;
+		}
+		FSavedActor SavedActor;
+		SavedActor.ActorName = Actor->GetFName();
+		SavedActor.Transform = Actor->GetTransform();
+
+		FMemoryWriter Writer(SavedActor.Bytes);
+		FObjectAndNameAsStringProxyArchive Archive(Writer, true);
+		Archive.ArIsSaveGame = true;
+		Actor->Serialize(Archive);
+
+		SavedActors.AddUnique(SavedActor);
+	}
+	for (FSavedMap& Map : SaveData->SavedMaps)
+	{
+		if (Map.MapAssetName == MapName)
+		{
+			Map.SavedActors = SavedActors;
+			break;
+		}
+	}
+
 	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
 }
 
