@@ -18,6 +18,14 @@ class IEnemyInterface;
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
+
+enum class ETargetingStatus : uint8
+{
+	NotTargeting,
+	TargetingEnemy,
+	TargetingNonEnemy,
+};
+
 /**
  * 
  */
@@ -61,8 +69,12 @@ private:
 
 	void Move(const FInputActionValue& InputValue);
 
-	IHighlightInterface* LastTracedActor = nullptr;
-	IHighlightInterface* CurrTracedActor = nullptr;
+	UPROPERTY()
+	TObjectPtr<AActor> LastTracedActor;
+
+	UPROPERTY()
+	TObjectPtr<AActor> CurrTracedActor;
+
 	FHitResult CursorHit;
 
 	void CursorTrace();
@@ -86,7 +98,7 @@ private:
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
 	bool bAutoRunning = false;
-	bool bTargeting = false; // if cursor is now targeting an enemy.
+	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;

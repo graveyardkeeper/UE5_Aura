@@ -142,12 +142,12 @@ void AAuraPlayerController::CursorTrace()
 		// ASC中有阻止CursorTrace的Tag，一般是施法过程中Ability赋予ASC的
 		if (CurrTracedActor)
 		{
-			CurrTracedActor->UnHighlightActor();
+			IHighlightInterface::Execute_UnHighlightActor(CurrTracedActor);
 			CurrTracedActor = nullptr;
 		}
 		if (LastTracedActor)
 		{
-			LastTracedActor->UnHighlightActor();
+			IHighlightInterface::Execute_UnHighlightActor(LastTracedActor);
 			LastTracedActor = nullptr;
 		}
 		return;
@@ -161,18 +161,42 @@ void AAuraPlayerController::CursorTrace()
 		return;
 	}
 	LastTracedActor = CurrTracedActor;
-	CurrTracedActor = Cast<IHighlightInterface>(CursorHit.GetActor());
+	if (CursorHit.GetActor()->Implements<UHighlightInterface>())
+	{
+		CurrTracedActor = CursorHit.GetActor();
+	}
+	else
+	{
+		CurrTracedActor = nullptr;
+	}
 
 	if (CurrTracedActor != LastTracedActor)
 	{
 		if (CurrTracedActor)
 		{
-			CurrTracedActor->HighlightActor();
+			IHighlightInterface::Execute_HighlightActor(CurrTracedActor);
 		}
 		if (LastTracedActor)
 		{
-			LastTracedActor->UnHighlightActor();
+			IHighlightInterface::Execute_UnHighlightActor(LastTracedActor);
 		}
+	}
+
+	// 更新TargetStatus
+	if (IsValid(CurrTracedActor))
+	{
+		if (CurrTracedActor->Implements<UEnemyInterface>())
+		{
+			TargetingStatus = ETargetingStatus::TargetingEnemy;
+		}
+		else
+		{
+			TargetingStatus = ETargetingStatus::TargetingNonEnemy;
+		}
+	}
+	else
+	{
+		TargetingStatus = ETargetingStatus::NotTargeting;
 	}
 }
 
@@ -184,7 +208,6 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 	}
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		bTargeting = CurrTracedActor != nullptr;
 		bAutoRunning = false;
 	}
 	if (GetASC())
@@ -200,7 +223,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		return;
 	}
 	// if input is not LMB or targeting an enemy, then try to notify ASC, otherwise we should start an Auto-Running.
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting || bShiftKeyDown)
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || TargetingStatus == ETargetingStatus::TargetingEnemy || bShiftKeyDown)
 	{
 		if (GetASC())
 		{
@@ -250,7 +273,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;
 	}
 	// if input is not LMB or targeting an enemy, then try to activate abilities, otherwise we should Click-to-Move.
-	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || bTargeting || bShiftKeyDown)
+	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB) || TargetingStatus == ETargetingStatus::TargetingEnemy || bShiftKeyDown)
 	{
 		if (GetASC())
 		{
