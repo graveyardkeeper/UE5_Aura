@@ -68,7 +68,7 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveData) co
 	UGameplayStatics::SaveGameToSlot(SaveData, GameInstance->LoadSlotName, GameInstance->LoadSlotIndex);
 }
 
-void AAuraGameModeBase::SaveWorldState(UWorld* World) const
+void AAuraGameModeBase::SaveWorldState(UWorld* World, const FString& InDestinationMapAssetName) const
 {
 	FString MapName = World->GetMapName();
 	MapName.RemoveFromStart(World->StreamingLevelsPrefix);
@@ -79,6 +79,13 @@ void AAuraGameModeBase::SaveWorldState(UWorld* World) const
 	{
 		return;
 	}
+
+	if (!InDestinationMapAssetName.IsEmpty())
+	{
+		SaveData->MapAssetName = InDestinationMapAssetName;
+		SaveData->MapName = GetMapNameFromMapAssetName(InDestinationMapAssetName);
+	}
+
 	if (!SaveData->HasMap(MapName))
 	{
 		FSavedMap NewSavedMap;
@@ -168,6 +175,18 @@ void AAuraGameModeBase::LoadWorldState(UWorld* World) const
 void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot) const
 {
 	UGameplayStatics::OpenLevelBySoftObjectPtr(this, Maps.FindChecked(Slot->GetMapName()));
+}
+
+FString AAuraGameModeBase::GetMapNameFromMapAssetName(const FString& MapAssetName) const
+{
+	for (const auto& Pair : Maps)
+	{
+		if (Pair.Value.ToSoftObjectPath().GetAssetName() == MapAssetName)
+		{
+			return Pair.Key;
+		}
+	}
+	return {};
 }
 
 AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)

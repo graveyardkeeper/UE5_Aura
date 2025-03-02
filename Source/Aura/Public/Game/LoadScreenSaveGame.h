@@ -107,6 +107,9 @@ public:
 	FString MapName;
 
 	UPROPERTY()
+	FString MapAssetName;
+
+	UPROPERTY()
 	FName PlayerStartTag;
 
 	UPROPERTY()
