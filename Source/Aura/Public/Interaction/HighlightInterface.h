@@ -27,4 +27,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void UnHighlightActor();
+
+	/** 高亮目标点击后应该移动到的位置，可以不实现，默认为鼠标位置 */
+	UFUNCTION(BlueprintNativeEvent)
+	void SetMoveToLocation(FVector& OutDestination);
 };

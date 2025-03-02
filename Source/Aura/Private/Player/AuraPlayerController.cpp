@@ -235,6 +235,16 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	// handle Auto-Running logic here...
 	if (APawn* ControlledPawn = GetPawn(); FollowTime <= ShortPressThreshold && ControlledPawn)
 	{
+		if (IsValid(CurrTracedActor))
+		{
+			// 强制修改高亮目标的自动寻路目标位置
+			IHighlightInterface::Execute_SetMoveToLocation(CurrTracedActor, CachedDestination);
+		}
+		else if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+		}
+
 		Spline->ClearSplinePoints();
 
 		UNavigationPath* NaviPath = UNavigationSystemV1::FindPathToLocationSynchronously(
@@ -256,10 +266,6 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				CachedDestination = NaviPath->PathPoints.Last();
 			}
 			bAutoRunning = true;
-		}
-		if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 		}
 	}
 
