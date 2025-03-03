@@ -66,6 +66,18 @@ int32 AAuraCharacter::GetCharacterLevel_Implementation() const
 	return PS->GetPlayerLevel();
 }
 
+void AAuraCharacter::Die(const FVector& DeathImpulse)
+{
+	Super::Die(DeathImpulse);
+
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([this]
+	{
+		Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this))->PlayerDied(this);
+	});
+	GetWorldTimerManager().SetTimer(DeathTimer, TimerDelegate, DeathTime, false);
+}
+
 int32 AAuraCharacter::GetXP_Implementation() const
 {
 	const AAuraPlayerState* PS = GetPlayerState<AAuraPlayerState>();

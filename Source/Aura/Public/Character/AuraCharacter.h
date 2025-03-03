@@ -27,6 +27,12 @@ public:
 	 * GetCharacterLevel不在父类实现，而是分别在AuraCharacter和Enemy中实现，因为玩家的Level不维护在Character中（Avatar），而是在PlayerState中
 	 */
 	virtual int32 GetCharacterLevel_Implementation() const override;
+	virtual void Die(const FVector& DeathImpulse) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DeathTime = 5.f;
+
+	FTimerHandle DeathTimer;
 
 	/** Player Interface. */
 	virtual int32 GetXP_Implementation() const override;

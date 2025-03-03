@@ -45,6 +45,8 @@ public:
 	UPROPERTY()
 	FName PlayerStartTag;
 
+	UPROPERTY()
+	FString MapAssetName;
 private:
 	UPROPERTY()
 	ESaveSlotStatus SlotStatus;

@@ -82,7 +82,10 @@ void ACheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 		// 保存玩家数据
 		IPlayerInterface::Execute_SaveProgress(OtherActor, PlayerStartTag);
 		// 保存世界状态
-		Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this))->SaveWorldState(GetWorld());
+		const UWorld* World = GetWorld();
+		FString MapName = World->GetMapName();
+		MapName.RemoveFromStart(World->StreamingLevelsPrefix);
+		Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this))->SaveWorldState(GetWorld(), MapName);
 	}
 }
 

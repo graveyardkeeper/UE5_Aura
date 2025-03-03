@@ -56,6 +56,8 @@ public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	void PlayerDied(ACharacter* DeadPlayer);
+
 protected:
 	virtual void BeginPlay() override;
 };
