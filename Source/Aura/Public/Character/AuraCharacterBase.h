@@ -34,6 +34,8 @@ public:
 
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	void SetCharacterClass(ECharacterClass InClass) { CharacterClass = InClass; }
+
 	/** Combat Interface */
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;

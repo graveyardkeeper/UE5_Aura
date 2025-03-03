@@ -44,6 +44,8 @@ public:
 	virtual void UnHighlightActor_Implementation() override;
 	virtual void SetMoveToLocation_Implementation(FVector& OutDestination) override;
 
+	void SetLevel(int32 InLevel) { Level = InLevel; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
 	int32 Level = 1;
 
